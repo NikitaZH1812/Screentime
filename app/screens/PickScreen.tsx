@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { posterUrl, watchUrl } from "@/lib/tmdbUrls";
-import type { Pick, RefusalReason } from "@/lib/types";
+import {
+  brainChipLabel,
+  eraChipLabel,
+  timeChipLabel,
+} from "@/lib/eveningLabels";
+import type { BrainLevel, Era, Pick, RefusalReason, TimeBucket } from "@/lib/types";
 
 const REASONS: { value: RefusalReason; label: string; note: string }[] = [
   { value: "already_seen", label: "вже бачили", note: "наша провина" },
@@ -25,13 +30,30 @@ export default function PickScreen({
   pick,
   busy,
   onRefuse,
+  context,
 }: {
   pick: Pick;
   busy: boolean;
   onRefuse: (reason: RefusalReason) => void;
+  context: {
+    time: TimeBucket;
+    brain: BrainLevel;
+    era: Era;
+    genreWish: string | null;
+    kidsInRoom: boolean;
+  };
 }) {
   const [sheet, setSheet] = useState(false);
   const poster = posterUrl(pick.poster_path);
+
+  // Makes the dials visibly felt: this is what was actually used to pick.
+  const tags = [
+    timeChipLabel(context.time),
+    brainChipLabel(context.brain),
+    eraChipLabel(context.era),
+    context.genreWish,
+    context.kidsInRoom ? "з дітьми" : null,
+  ].filter((t): t is string => Boolean(t));
 
   return (
     <>
@@ -48,6 +70,10 @@ export default function PickScreen({
       <p className="mt-1 text-sm text-white/40">
         {[pick.year, runtimeLabel(pick.runtime)].filter(Boolean).join(" · ")}
       </p>
+
+      {tags.length > 0 && (
+        <p className="mt-3 text-xs text-white/25">{tags.join(" · ")}</p>
+      )}
 
       <p className="mt-5 text-[15px] leading-relaxed text-white/80">
         {pick.reason}
