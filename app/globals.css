@@ -20,10 +20,26 @@ h1 {
   margin-bottom: 24px;
 }
 
+section {
+  margin-bottom: 32px;
+}
+
+h2 {
+  font-size: 1rem;
+  color: #aaa;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.dial-label {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 16px 0 8px;
+}
+
 form {
   display: flex;
   gap: 8px;
-  margin-bottom: 32px;
 }
 
 input[type="text"] {
@@ -52,35 +68,76 @@ button:disabled {
   cursor: default;
 }
 
-ul {
+button.search {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+}
+
+ul.chips {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 12px;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-li {
+.chip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
   background: #17171d;
+  border: 1px solid #2a2a32;
+  cursor: pointer;
+  user-select: none;
 }
 
-li button {
+.chip.selected {
+  background: #f2f2f5;
+  color: #0b0b0f;
+  border-color: #f2f2f5;
+}
+
+.chip button {
   background: transparent;
-  color: #888;
+  color: inherit;
+  opacity: 0.5;
   font-weight: 400;
-  padding: 4px 8px;
+  padding: 0;
+  font-size: 0.85rem;
 }
 
-li button:hover {
-  color: #f2f2f5;
+.chip button:hover {
+  opacity: 1;
 }
 
 .empty {
   color: #888;
+  margin: 0 0 16px;
+}
+
+.result {
+  padding: 20px;
+  border-radius: 12px;
+  background: #17171d;
+  border: 1px solid #2a2a32;
+}
+
+.result h2 {
+  color: #f2f2f5;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.result .meta {
+  color: #888;
+  margin: 0 0 12px;
+}
+
+.result .reason {
+  margin: 0;
+  line-height: 1.4;
 }
