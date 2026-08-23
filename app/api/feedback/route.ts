@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getPeople } from "@/lib/people";
 import { logFeedback } from "@/lib/refusalLog";
+import type { Person } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  personIds: string[];
+  people: Person[];
   tmdb_id: number;
   title: string;
   watched: boolean;
@@ -15,7 +15,7 @@ type Body = {
 
 export async function POST(req: Request) {
   const body = (await req.json()) as Body;
-  const people = getPeople(body.personIds);
+  const people = body.people ?? [];
 
   logFeedback({
     timestamp: new Date().toISOString(),

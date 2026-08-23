@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { pickOne } from "@/lib/claude";
-import { getPeople, unionExclusions } from "@/lib/people";
+import { unionGenreExclusions } from "@/lib/people";
 import { retrieveCandidates } from "@/lib/tmdb";
-import type { BrainLevel, TimeBucket } from "@/lib/types";
+import type { BrainLevel, Person, TimeBucket } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  personIds: string[];
+  people: Person[];
   time: TimeBucket;
   brain: BrainLevel;
   genreWish: string | null;
@@ -18,7 +18,7 @@ type Body = {
 
 export async function POST(req: Request) {
   const body = (await req.json()) as Body;
-  const people = getPeople(body.personIds);
+  const people = body.people ?? [];
 
   if (people.length === 0) {
     return NextResponse.json({ error: "Нікого не обрано" }, { status: 400 });
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   try {
     const { candidates, relaxed } = await retrieveCandidates({
-      exclusions: unionExclusions(people),
+      genreExclusions: unionGenreExclusions(people),
       time: body.time,
       genreWish: body.genreWish,
       excludeIds: body.excludeIds ?? [],

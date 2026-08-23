@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import type { BrainLevel, TimeBucket } from "@/lib/types";
+// The evening wish: deliberately tiny and hidden behind a toggle. A situational
+// bias, not a mood picker, and it never reaches a person's profile.
+import { WISH_GENRES } from "@/lib/genres";
 
 const TIME: { value: TimeBucket; label: string }[] = [
   { value: "short", label: "менше 1.5 год" },
@@ -13,12 +16,6 @@ const BRAIN: { value: BrainLevel; label: string }[] = [
   { value: "low", label: "нуль" },
   { value: "normal", label: "норм" },
 ];
-
-/**
- * The evening wish. Deliberately tiny and hidden behind a toggle — this is a
- * situational bias, not a mood picker, and it never reaches a Person profile.
- */
-const GENRES = ["комедія", "трилер", "драма", "фантастика", "жахи", "пригоди"];
 
 function Row({
   label,
@@ -126,7 +123,7 @@ export default function DialsScreen({
 
       {wishOpen && (
         <div className="mb-8 flex flex-wrap gap-2">
-          {GENRES.map((g) => (
+          {WISH_GENRES.map((g) => (
             <Chip
               key={g}
               on={genreWish === g}
