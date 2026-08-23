@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { loadProfiles, saveProfiles } from "@/lib/profiles";
 import type {
   BrainLevel,
+  Era,
   Person,
   Pick,
   RefusalReason,
@@ -27,6 +28,8 @@ export default function EveningFlow() {
   const [time, setTime] = useState<TimeBucket>("medium");
   const [brain, setBrain] = useState<BrainLevel>("low");
   const [genreWish, setGenreWish] = useState<string | null>(null);
+  const [era, setEra] = useState<Era>("any");
+  const [kidsInRoom, setKidsInRoom] = useState(false);
 
   const [pick, setPick] = useState<Pick | null>(null);
   const [busy, setBusy] = useState(false);
@@ -58,6 +61,8 @@ export default function EveningFlow() {
           time,
           brain,
           genreWish,
+          era,
+          kidsInRoom,
           excludeIds,
           refusedTitles: refused,
         }),
@@ -172,9 +177,13 @@ export default function EveningFlow() {
           time={time}
           brain={brain}
           genreWish={genreWish}
+          era={era}
+          kidsInRoom={kidsInRoom}
           onTime={setTime}
           onBrain={setBrain}
           onGenreWish={setGenreWish}
+          onEra={setEra}
+          onKidsInRoom={setKidsInRoom}
           onBack={() => setStage("who")}
           onPick={() => fetchPick(seenIds, refusedTitles)}
           busy={busy}
@@ -182,7 +191,12 @@ export default function EveningFlow() {
       )}
 
       {stage === "pick" && pick && (
-        <PickScreen pick={pick} busy={busy} onRefuse={refuse} />
+        <PickScreen
+          pick={pick}
+          busy={busy}
+          onRefuse={refuse}
+          context={{ time, brain, era, genreWish, kidsInRoom }}
+        />
       )}
 
       {stage === "closed" && <ClosedScreen onRestart={restart} />}

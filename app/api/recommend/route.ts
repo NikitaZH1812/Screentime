@@ -3,7 +3,7 @@ import { pickOne } from "@/lib/claude";
 import { missingKeys } from "@/lib/env";
 import { unionGenreExclusions } from "@/lib/people";
 import { retrieveCandidates } from "@/lib/tmdb";
-import type { BrainLevel, Person, TimeBucket } from "@/lib/types";
+import type { BrainLevel, Era, Person, TimeBucket } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +13,8 @@ type Body = {
   time: TimeBucket;
   brain: BrainLevel;
   genreWish: string | null;
+  era: Era;
+  kidsInRoom: boolean;
   excludeIds?: number[];
   refusedTitles?: string[];
 };
@@ -40,6 +42,8 @@ export async function POST(req: Request) {
       genreExclusions: unionGenreExclusions(people),
       time: body.time,
       genreWish: body.genreWish,
+      era: body.era,
+      kidsInRoom: body.kidsInRoom,
       excludeIds: body.excludeIds ?? [],
     });
 
@@ -49,6 +53,8 @@ export async function POST(req: Request) {
       time: body.time,
       brain: body.brain,
       genreWish: body.genreWish,
+      era: body.era,
+      kidsInRoom: body.kidsInRoom,
       relaxed,
       refusedTitles: body.refusedTitles ?? [],
     });
