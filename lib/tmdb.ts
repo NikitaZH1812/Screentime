@@ -1,61 +1,7 @@
+import { GENRE_ID_BY_LABEL, GENRE_LABEL_BY_ID } from "./genres";
 import type { Candidate, TimeBucket } from "./types";
 
 const BASE = "https://api.themoviedb.org/3";
-
-/** TMDB genre ids we care about. */
-const GENRE_IDS: Record<string, number> = {
-  action: 28,
-  adventure: 12,
-  animation: 16,
-  comedy: 35,
-  crime: 80,
-  documentary: 99,
-  drama: 18,
-  family: 10751,
-  fantasy: 14,
-  history: 36,
-  horror: 27,
-  music: 10402,
-  mystery: 9648,
-  romance: 10749,
-  scifi: 878,
-  thriller: 53,
-  war: 10752,
-  western: 37,
-};
-
-const GENRE_NAMES: Record<number, string> = Object.fromEntries(
-  Object.entries(GENRE_IDS).map(([name, id]) => [id, name]),
-);
-
-/**
- * Permanent exclusions are free-form strings ("medieval fantasy"). TMDB can
- * only filter by genre id, so we map what we recognise and hand the rest to
- * the model as a hard rule. Deliberately generous: over-excluding is safer
- * than showing someone a film they have already said no to forever.
- */
-const EXCLUSION_KEYWORDS: [RegExp, number][] = [
-  [/musical/i, GENRE_IDS.music],
-  [/fantasy|medieval/i, GENRE_IDS.fantasy],
-  [/horror|gore|slasher/i, GENRE_IDS.horror],
-  [/\bwar\b|military/i, GENRE_IDS.war],
-  [/romance|romantic|rom.?com/i, GENRE_IDS.romance],
-  [/animation|anime|cartoon/i, GENRE_IDS.animation],
-  [/documentar/i, GENRE_IDS.documentary],
-  [/western/i, GENRE_IDS.western],
-  [/thriller/i, GENRE_IDS.thriller],
-  [/crime/i, GENRE_IDS.crime],
-];
-
-/** The evening wish maps onto a genre bias, never a hard filter. */
-const WISH_GENRES: Record<string, number> = {
-  "комедія": GENRE_IDS.comedy,
-  "трилер": GENRE_IDS.thriller,
-  "драма": GENRE_IDS.drama,
-  "фантастика": GENRE_IDS.scifi,
-  "жахи": GENRE_IDS.horror,
-  "пригоди": GENRE_IDS.adventure,
-};
 
 const RUNTIME_CAP: Record<TimeBucket, number | null> = {
   short: 95,
@@ -63,14 +9,19 @@ const RUNTIME_CAP: Record<TimeBucket, number | null> = {
   any: null,
 };
 
-export function excludedGenreIds(exclusions: string[]): number[] {
-  const ids = new Set<number>();
-  for (const raw of exclusions) {
-    for (const [pattern, id] of EXCLUSION_KEYWORDS) {
-      if (pattern.test(raw)) ids.add(id);
-    }
-  }
-  return [...ids];
+/**
+ * Genre exclusions are picked from the fixed list, so they map straight onto
+ * TMDB ids — no guessing. Type exclusions ("замки і дракони") are narrower
+ * than any genre and can only be enforced by the model, further down.
+ */
+export function excludedGenreIds(genreExclusions: string[]): number[] {
+  return [
+    ...new Set(
+      genreExclusions
+        .map((label) => GENRE_ID_BY_LABEL[label])
+        .filter((id): id is number => typeof id === "number"),
+    ),
+  ];
 }
 
 function authHeaders(key: string): HeadersInit {
@@ -134,7 +85,7 @@ async function details(id: number): Promise<Candidate | null> {
       runtime: m.runtime ?? null,
       overview: m.overview || "",
       genres: (m.genres ?? []).map((g: { id: number; name: string }) =>
-        GENRE_NAMES[g.id] ?? g.name,
+        GENRE_LABEL_BY_ID[g.id] ?? g.name,
       ),
       poster_path: m.poster_path ?? null,
       vote_average: m.vote_average ?? 0,
@@ -157,13 +108,13 @@ export type RetrievalResult = {
  * than return an empty set — an empty screen is never an acceptable answer.
  */
 export async function retrieveCandidates(opts: {
-  exclusions: string[];
+  genreExclusions: string[];
   time: TimeBucket;
   genreWish: string | null;
   excludeIds: number[];
 }): Promise<RetrievalResult> {
-  const excludeGenres = excludedGenreIds(opts.exclusions);
-  const wish = opts.genreWish ? WISH_GENRES[opts.genreWish] ?? null : null;
+  const excludeGenres = excludedGenreIds(opts.genreExclusions);
+  const wish = opts.genreWish ? GENRE_ID_BY_LABEL[opts.genreWish] ?? null : null;
   const cap = RUNTIME_CAP[opts.time];
 
   const ladder: { params: Omit<DiscoverParams, "page">; relaxed: string[] }[] = [

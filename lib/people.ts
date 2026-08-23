@@ -1,18 +1,16 @@
-import seed from "@/data/people.json";
 import type { Person } from "./types";
-
-export const PEOPLE: Person[] = seed as Person[];
-
-export function getPeople(ids: string[]): Person[] {
-  return PEOPLE.filter((p) => ids.includes(p.id));
-}
 
 /**
  * Exclusions DO combine across people — the union of everyone's hard filters.
- * Preferences deliberately do not; a group's positive taste is its own thing.
+ * Preferences deliberately do not: a group's positive taste is its own thing,
+ * never the average or the intersection of the individuals in it.
  */
-export function unionExclusions(people: Person[]): string[] {
-  return [...new Set(people.flatMap((p) => p.permanent_exclusions))];
+export function unionGenreExclusions(people: Person[]): string[] {
+  return [...new Set(people.flatMap((p) => p.genre_exclusions))];
+}
+
+export function unionTypeExclusions(people: Person[]): string[] {
+  return [...new Set(people.flatMap((p) => p.type_exclusions))];
 }
 
 export function unionSubscriptions(people: Person[]): string[] {

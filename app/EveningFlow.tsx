@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { loadProfiles, saveProfiles } from "@/lib/profiles";
 import type {
   BrainLevel,
   Person,
@@ -9,16 +10,20 @@ import type {
   TimeBucket,
 } from "@/lib/types";
 import WhoScreen from "./screens/WhoScreen";
+import ProfileForm from "./screens/ProfileForm";
 import DialsScreen from "./screens/DialsScreen";
 import PickScreen from "./screens/PickScreen";
 import ClosedScreen from "./screens/ClosedScreen";
 import FeedbackScreen from "./screens/FeedbackScreen";
 
-type Stage = "who" | "dials" | "pick" | "closed" | "feedback";
+type Stage = "who" | "profile" | "dials" | "pick" | "closed" | "feedback";
 
-export default function EveningFlow({ people }: { people: Person[] }) {
+export default function EveningFlow() {
   const [stage, setStage] = useState<Stage>("who");
+  const [profiles, setProfiles] = useState<Person[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [personIds, setPersonIds] = useState<string[]>([]);
+
   const [time, setTime] = useState<TimeBucket>("medium");
   const [brain, setBrain] = useState<BrainLevel>("low");
   const [genreWish, setGenreWish] = useState<string | null>(null);
@@ -27,10 +32,19 @@ export default function EveningFlow({ people }: { people: Person[] }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Session-only evening state. None of this is ever written to a person.
+  // Session-only evening state. None of this is ever written to a profile.
   const [seenIds, setSeenIds] = useState<number[]>([]);
   const [refusedTitles, setRefusedTitles] = useState<string[]>([]);
   const [notTonightCount, setNotTonightCount] = useState(0);
+
+  useEffect(() => setProfiles(loadProfiles()), []);
+
+  function persist(next: Person[]) {
+    setProfiles(next);
+    saveProfiles(next);
+  }
+
+  const selectedPeople = profiles.filter((p) => personIds.includes(p.id));
 
   async function fetchPick(excludeIds: number[], refused: string[]) {
     setBusy(true);
@@ -40,7 +54,7 @@ export default function EveningFlow({ people }: { people: Person[] }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          personIds,
+          people: selectedPeople,
           time,
           brain,
           genreWish,
@@ -73,7 +87,7 @@ export default function EveningFlow({ people }: { people: Person[] }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        personIds,
+        people: selectedPeople,
         tmdb_id: pick.tmdb_id,
         title: pick.title,
         reason,
@@ -114,14 +128,42 @@ export default function EveningFlow({ people }: { people: Person[] }) {
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-10">
       {stage === "who" && (
         <WhoScreen
-          people={people}
+          profiles={profiles}
           selected={personIds}
           onToggle={(id) =>
             setPersonIds((prev) =>
               prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
             )
           }
+          onCreate={() => {
+            setEditingId(null);
+            setStage("profile");
+          }}
+          onEdit={(id) => {
+            setEditingId(id);
+            setStage("profile");
+          }}
+          onDelete={(id) => {
+            persist(profiles.filter((p) => p.id !== id));
+            setPersonIds((prev) => prev.filter((p) => p !== id));
+          }}
           onNext={() => setStage("dials")}
+        />
+      )}
+
+      {stage === "profile" && (
+        <ProfileForm
+          initial={profiles.find((p) => p.id === editingId)}
+          onSave={(person) => {
+            const exists = profiles.some((p) => p.id === person.id);
+            persist(
+              exists
+                ? profiles.map((p) => (p.id === person.id ? person : p))
+                : [...profiles, person],
+            );
+            setStage("who");
+          }}
+          onCancel={() => setStage("who")}
         />
       )}
 
@@ -153,7 +195,7 @@ export default function EveningFlow({ people }: { people: Person[] }) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                personIds,
+                people: selectedPeople,
                 tmdb_id: pick.tmdb_id,
                 title: pick.title,
                 watched,

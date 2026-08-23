@@ -1,17 +1,34 @@
-export type ReferenceFilm = {
-  tmdb_id: number;
-  title: string;
-};
-
-/** Level 1 of the data model: permanent, hard, belongs to one individual. */
+/**
+ * Level 1 of the data model: permanent, hard, belongs to one individual.
+ * Accumulates over time and never mixes with an evening's wish.
+ */
 export type Person = {
   id: string;
   name: string;
-  reference_films: ReferenceFilm[];
-  permanent_exclusions: string[];
-  requires_ukrainian_audio: boolean;
+  /** Picked from the fixed genre list, so these map straight onto TMDB filters. */
+  genre_exclusions: string[];
+  /** Free-form, narrower than a genre: "замки і дракони", "магія". */
+  type_exclusions: string[];
+  /** What good looks like for this person. */
+  good_examples: string[];
+  /** What bad looks like. Just as informative, and easier to recall. */
+  bad_examples: string[];
   subscriptions: string[];
+  requires_ukrainian_audio: boolean;
 };
+
+export function emptyPerson(): Person {
+  return {
+    id: crypto.randomUUID(),
+    name: "",
+    genre_exclusions: [],
+    type_exclusions: [],
+    good_examples: [],
+    bad_examples: [],
+    subscriptions: [],
+    requires_ukrainian_audio: false,
+  };
+}
 
 /** How much time we have. Discrete buckets, never a free number. */
 export type TimeBucket = "short" | "medium" | "any";
