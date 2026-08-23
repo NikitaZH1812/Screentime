@@ -1,5 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { BrainLevel, Candidate, Person, Pick, TimeBucket } from "./types";
+import type {
+  BrainLevel,
+  Candidate,
+  FilmRef,
+  Person,
+  Pick,
+  TimeBucket,
+} from "./types";
 
 const MODEL = "claude-sonnet-4-6";
 
@@ -33,13 +40,20 @@ function brainLabel(b: BrainLevel) {
     : "цілком здатні на щось складніше";
 }
 
+function filmList(films: FilmRef[]) {
+  return (
+    films.map((f) => (f.year ? `${f.title} (${f.year})` : f.title)).join(", ") ||
+    "—"
+  );
+}
+
 function groupContext(people: Person[]) {
   return people
     .map((p) =>
       [
         `${p.name}:`,
-        `  любить: ${p.good_examples.join(", ") || "—"}`,
-        `  не зайшло: ${p.bad_examples.join(", ") || "—"}`,
+        `  любить: ${filmList(p.good_examples)}`,
+        `  не зайшло: ${filmList(p.bad_examples)}`,
         `  заборонені жанри: ${p.genre_exclusions.join(", ") || "—"}`,
         `  заборонені типи: ${p.type_exclusions.join(", ") || "—"}`,
         `  підписки: ${p.subscriptions.join(", ") || "—"}`,

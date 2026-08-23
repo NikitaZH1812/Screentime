@@ -8,7 +8,14 @@ function initials(name: string) {
 
 function summary(p: Person) {
   const bits: string[] = [];
-  if (p.good_examples.length) bits.push(p.good_examples.slice(0, 2).join(", "));
+  if (p.good_examples.length) {
+    bits.push(
+      p.good_examples
+        .slice(0, 2)
+        .map((f) => f.title)
+        .join(", "),
+    );
+  }
   const banned = p.genre_exclusions.length + p.type_exclusions.length;
   if (banned) bits.push(`${banned} заборон`);
   return bits.join(" · ");

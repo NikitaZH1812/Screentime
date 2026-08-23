@@ -1,4 +1,16 @@
 /**
+ * A real film, picked from TMDB rather than typed. Carrying the id means the
+ * anchor in the reason line refers to something that provably exists.
+ * tmdb_id is nullable only to keep profiles written before the search existed.
+ */
+export type FilmRef = {
+  tmdb_id: number | null;
+  title: string;
+  year: number | null;
+  poster_path: string | null;
+};
+
+/**
  * Level 1 of the data model: permanent, hard, belongs to one individual.
  * Accumulates over time and never mixes with an evening's wish.
  */
@@ -10,9 +22,9 @@ export type Person = {
   /** Free-form, narrower than a genre: "замки і дракони", "магія". */
   type_exclusions: string[];
   /** What good looks like for this person. */
-  good_examples: string[];
+  good_examples: FilmRef[];
   /** What bad looks like. Just as informative, and easier to recall. */
-  bad_examples: string[];
+  bad_examples: FilmRef[];
   subscriptions: string[];
   requires_ukrainian_audio: boolean;
 };

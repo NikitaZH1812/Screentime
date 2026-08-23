@@ -1,5 +1,5 @@
 import { GENRE_ID_BY_LABEL, GENRE_LABEL_BY_ID } from "./genres";
-import type { Candidate, TimeBucket } from "./types";
+import type { Candidate, FilmRef, TimeBucket } from "./types";
 
 const BASE = "https://api.themoviedb.org/3";
 
@@ -176,3 +176,27 @@ export async function retrieveCandidates(opts: {
 }
 
 export { posterUrl, watchUrl } from "./tmdbUrls";
+
+/** Autocomplete for the profile form: real films, not typed strings. */
+export async function searchFilms(query: string): Promise<FilmRef[]> {
+  const json = await tmdb("/search/movie", {
+    language: "uk-UA",
+    include_adult: "false",
+    query,
+  });
+
+  return (json.results ?? [])
+    .slice(0, 8)
+    .map((m: {
+      id: number;
+      title: string;
+      original_title: string;
+      release_date?: string;
+      poster_path: string | null;
+    }) => ({
+      tmdb_id: m.id,
+      title: m.title || m.original_title,
+      year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+      poster_path: m.poster_path ?? null,
+    }));
+}
