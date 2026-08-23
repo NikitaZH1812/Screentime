@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import { PEOPLE } from "@/lib/people";
+import EveningFlow from "./EveningFlow";
 
 export default function Home() {
-  redirect("/people");
+  return <EveningFlow people={PEOPLE} />;
 }
