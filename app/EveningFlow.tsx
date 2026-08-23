@@ -13,6 +13,7 @@ import type {
 import WhoScreen from "./screens/WhoScreen";
 import ProfileForm from "./screens/ProfileForm";
 import DialsScreen from "./screens/DialsScreen";
+import LoadingScreen from "./screens/LoadingScreen";
 import PickScreen from "./screens/PickScreen";
 import ClosedScreen from "./screens/ClosedScreen";
 import FeedbackScreen from "./screens/FeedbackScreen";
@@ -172,7 +173,9 @@ export default function EveningFlow() {
         />
       )}
 
-      {stage === "dials" && (
+      {stage === "dials" && (busy ? (
+        <LoadingScreen />
+      ) : (
         <DialsScreen
           time={time}
           brain={brain}
@@ -188,7 +191,7 @@ export default function EveningFlow() {
           onPick={() => fetchPick(seenIds, refusedTitles)}
           busy={busy}
         />
-      )}
+      ))}
 
       {stage === "pick" && pick && (
         <PickScreen
