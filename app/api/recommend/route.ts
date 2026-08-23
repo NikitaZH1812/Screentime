@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pickOne } from "@/lib/claude";
+import { missingKeys } from "@/lib/env";
 import { unionGenreExclusions } from "@/lib/people";
 import { retrieveCandidates } from "@/lib/tmdb";
 import type { BrainLevel, Person, TimeBucket } from "@/lib/types";
@@ -22,6 +23,16 @@ export async function POST(req: Request) {
 
   if (people.length === 0) {
     return NextResponse.json({ error: "Нікого не обрано" }, { status: 400 });
+  }
+
+  const missing = missingKeys();
+  if (missing.length) {
+    return NextResponse.json(
+      {
+        error: `Не налаштовано: ${missing.join(", ")}. Локально — у .env.local, на Vercel — у Settings → Environment Variables, і потім Redeploy.`,
+      },
+      { status: 500 },
+    );
   }
 
   try {
