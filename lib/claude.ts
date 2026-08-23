@@ -1,0 +1,144 @@
+import Anthropic from "@anthropic-ai/sdk";
+import type { BrainLevel, Candidate, Person, Pick, TimeBucket } from "./types";
+
+const MODEL = "claude-sonnet-4-6";
+
+const SYSTEM = `Ти підбираєш ОДИН фільм на сьогоднішній вечір для людей, які зараз у кімнаті.
+
+Правила, які не обговорюються:
+- Ти обираєш РІВНО ОДИН фільм зі списку кандидатів. Ти не називаєш нічого поза списком.
+- Смак групи — це не середнє і не перетин смаків окремих людей. Пара дивиться те, чого не обрав би поодинці ніхто з них. "Щось середнє" — це фільм, який не подобається нікому. Обирай те, що працює для них разом.
+- Постійні виключення — жорсткі. Якщо кандидат підпадає під будь-яке виключення будь-кого з групи, він викреслений, навіть якщо ідеально підходить в усьому іншому.
+- Побажання вечора (жанр) — м'яке. Сильний нахил, але не обов'язок.
+
+Рядок пояснення — обов'язковий і найважливіший. З одним варіантом промах — цілком наша провина, і пояснення це те, що робить промах читабельним як "воно нас ще не знає", а не як "ця штука видає рандом".
+
+Формат пояснення: смаковий якір + доступність + практичність.
+- Смаковий якір мусить посилатися на щось конкретне про ЦИХ людей — їхній референсний фільм за назвою. Не загальні слова про фільм.
+- Доступність: назви сервіс із їхнього списку підписок і згадай українську аудіодоріжку, якщо вона їм потрібна.
+- Практичність: тривалість і чому вона пасує до їхнього стану.
+
+Приклад тону: "Ви обидві любили Prisoners — тут той самий повільний тиск; на Netflix, 1год 50."
+
+Пиши українською, одним реченням, без преамбул і без списків.`;
+
+function timeLabel(t: TimeBucket) {
+  return { short: "менше 1.5 години", medium: "приблизно 2 години", any: "час не обмежений" }[t];
+}
+
+function brainLabel(b: BrainLevel) {
+  return b === "low"
+    ? "мозку не лишилось — нічого, що вимагає зусиль"
+    : "цілком здатні на щось складніше";
+}
+
+function groupContext(people: Person[]) {
+  return people
+    .map((p) =>
+      [
+        `${p.name}:`,
+        `  любить: ${p.reference_films.map((f) => f.title).join(", ")}`,
+        `  ніколи не показувати: ${p.permanent_exclusions.join(", ") || "—"}`,
+        `  підписки: ${p.subscriptions.join(", ")}`,
+        `  українська аудіодоріжка обов'язкова: ${p.requires_ukrainian_audio ? "так" : "ні"}`,
+      ].join("\n"),
+    )
+    .join("\n\n");
+}
+
+function candidateList(candidates: Candidate[]) {
+  return candidates
+    .map(
+      (c) =>
+        `[${c.tmdb_id}] ${c.title}${c.year ? ` (${c.year})` : ""} · ${
+          c.runtime ? `${c.runtime}хв` : "тривалість невідома"
+        } · ${c.genres.join(", ")} · ${c.vote_average.toFixed(1)}\n${c.overview.slice(0, 300)}`,
+    )
+    .join("\n\n");
+}
+
+/**
+ * Stage 2 of the pipeline: the model picks, it never retrieves.
+ *
+ * tmdb_id is an enum over the candidate ids with strict validation, so a film
+ * that is not on the list is structurally impossible to return.
+ */
+export async function pickOne(opts: {
+  people: Person[];
+  candidates: Candidate[];
+  time: TimeBucket;
+  brain: BrainLevel;
+  genreWish: string | null;
+  relaxed: string[];
+  refusedTitles: string[];
+}): Promise<Pick> {
+  const client = new Anthropic();
+  const ids = opts.candidates.map((c) => c.tmdb_id);
+
+  const relaxNote = opts.relaxed.length
+    ? `\n\nУВАГА: під ці обмеження нічого пристойного не знайшлось, тому послаблено: ${opts.relaxed.join(", ")}. Скажи про це в поясненні чесно і коротко, на кшталт "нічого з жахів під ваш час — найближче, що є:".`
+    : "";
+
+  const retryNote = opts.refusedTitles.length
+    ? `\n\nЦього вечора вони вже відмовились від: ${opts.refusedTitles.join(", ")}. Не пропонуй щось у тому ж дусі.`
+    : "";
+
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: 1000,
+    system: SYSTEM,
+    tools: [
+      {
+        name: "pick_film",
+        description: "Обрати рівно один фільм зі списку кандидатів.",
+        input_schema: {
+          type: "object",
+          properties: {
+            tmdb_id: {
+              type: "number",
+              enum: ids,
+              description: "id обраного фільму — тільки зі списку кандидатів",
+            },
+            reason: {
+              type: "string",
+              description:
+                "Одне речення українською: смаковий якір + доступність + практичність.",
+            },
+          },
+          required: ["tmdb_id", "reason"],
+          additionalProperties: false,
+        },
+        strict: true,
+      },
+    ],
+    tool_choice: { type: "tool", name: "pick_film" },
+    messages: [
+      {
+        role: "user",
+        content: `Хто дивиться:\n\n${groupContext(opts.people)}\n\nСьогоднішній вечір:\n- часу: ${timeLabel(
+          opts.time,
+        )}\n- стан: ${brainLabel(opts.brain)}\n- хочеться: ${
+          opts.genreWish ?? "нічого конкретного, вирішуй сам"
+        }${relaxNote}${retryNote}\n\nКандидати:\n\n${candidateList(opts.candidates)}`,
+      },
+    ],
+  });
+
+  const block = response.content.find((b) => b.type === "tool_use");
+  if (!block || block.type !== "tool_use") {
+    throw new Error("Model did not return a pick");
+  }
+
+  const { tmdb_id, reason } = block.input as { tmdb_id: number; reason: string };
+  const film = opts.candidates.find((c) => c.tmdb_id === tmdb_id);
+  if (!film) throw new Error(`Model picked ${tmdb_id}, which is not a candidate`);
+
+  return {
+    tmdb_id: film.tmdb_id,
+    title: film.title,
+    year: film.year,
+    runtime: film.runtime,
+    poster_path: film.poster_path,
+    reason,
+  };
+}

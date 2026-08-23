@@ -1,0 +1,38 @@
+[
+  {
+    "id": "nika",
+    "name": "Ніка",
+    "reference_films": [
+      { "tmdb_id": 146233, "title": "Prisoners" },
+      { "tmdb_id": 329865, "title": "Arrival" },
+      { "tmdb_id": 496243, "title": "Parasite" }
+    ],
+    "permanent_exclusions": ["musicals", "medieval fantasy"],
+    "requires_ukrainian_audio": true,
+    "subscriptions": ["Netflix", "Megogo"]
+  },
+  {
+    "id": "nastia",
+    "name": "Настя",
+    "reference_films": [
+      { "tmdb_id": 313369, "title": "La La Land" },
+      { "tmdb_id": 120467, "title": "The Grand Budapest Hotel" },
+      { "tmdb_id": 546554, "title": "Knives Out" }
+    ],
+    "permanent_exclusions": ["body horror", "war films"],
+    "requires_ukrainian_audio": true,
+    "subscriptions": ["Netflix", "Sweet.tv"]
+  },
+  {
+    "id": "sasha",
+    "name": "Саша",
+    "reference_films": [
+      { "tmdb_id": 438631, "title": "Dune" },
+      { "tmdb_id": 244786, "title": "Whiplash" },
+      { "tmdb_id": 335984, "title": "Blade Runner 2049" }
+    ],
+    "permanent_exclusions": ["romantic comedies"],
+    "requires_ukrainian_audio": false,
+    "subscriptions": ["Netflix"]
+  }
+]
