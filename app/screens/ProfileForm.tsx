@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GENRES, SERVICES } from "@/lib/genres";
 import { emptyPerson, type Person } from "@/lib/types";
 import TagInput from "../components/TagInput";
+import FilmSearch from "../components/FilmSearch";
 
 function Field({
   label,
@@ -117,18 +118,18 @@ export default function ProfileForm({
       </Field>
 
       <Field label="Приклади хорошого" hint="2–3 фільми, які зайшли">
-        <TagInput
+        <FilmSearch
           value={person.good_examples}
           onChange={(v) => set("good_examples", v)}
-          placeholder="назва фільму + Enter"
+          placeholder="почни писати назву"
         />
       </Field>
 
       <Field label="Приклади поганого" hint="те, від чого було нудно чи бридко">
-        <TagInput
+        <FilmSearch
           value={person.bad_examples}
           onChange={(v) => set("bad_examples", v)}
-          placeholder="назва фільму + Enter"
+          placeholder="почни писати назву"
         />
       </Field>
 
