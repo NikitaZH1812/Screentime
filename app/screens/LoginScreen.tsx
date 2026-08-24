@@ -6,16 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 import LangToggle from "../components/LangToggle";
 
 /**
- * Passwordless on purpose: one tap, nothing to remember. Google is the
- * primary path — no email quota of our own to worry about as this grows
- * past one household. Email link stays as a fallback behind a toggle for
- * anyone who'd rather not link a Google account.
+ * Passwordless, one tap, nothing to remember. Google is the only path in —
+ * no email quota of our own to worry about as this grows past one household.
  */
 export default function LoginScreen() {
   const { t } = useLang();
-  const [showEmail, setShowEmail] = useState(false);
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,40 +29,12 @@ export default function LoginScreen() {
     }
   }
 
-  async function withEmail(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    setBusy(false);
-    if (error) setError(error.message);
-    else setSent(true);
-  }
-
-  if (sent) {
-    return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center px-5 text-center">
-        <p className="text-xl font-semibold">{t.login.checkEmail}</p>
-        <p className="mt-3 text-[15px] leading-relaxed text-white/50">
-          {t.login.sentTo(email)}
-        </p>
-      </main>
-    );
-  }
-
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center px-5">
-      <div className="mb-1 flex w-full items-center justify-center gap-3">
-        <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-accent">
-          Screentime
-        </h1>
-      </div>
-      <div className="mb-8 flex items-center gap-3">
-        <p className="text-sm text-white/40">{t.login.tagline}</p>
+      <h1 className="mb-4 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-accent">
+        Screentime
+      </h1>
+      <div className="mb-8">
         <LangToggle />
       </div>
 
@@ -97,34 +64,6 @@ export default function LoginScreen() {
         </svg>
         {busy ? t.login.continuingGoogle : t.login.continueWithGoogle}
       </button>
-
-      {!showEmail ? (
-        <button
-          type="button"
-          onClick={() => setShowEmail(true)}
-          className="mt-4 text-sm text-white/30"
-        >
-          {t.login.orEmail}
-        </button>
-      ) : (
-        <form onSubmit={withEmail} className="mt-4 w-full">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={t.login.emailPlaceholder}
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] placeholder:text-white/25 focus:border-white/30 focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={busy || !email.trim()}
-            className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] py-4 font-semibold transition active:scale-[0.98] disabled:opacity-30 disabled:active:scale-100"
-          >
-            {busy ? t.login.sending : t.login.sendLink}
-          </button>
-        </form>
-      )}
 
       {error && (
         <p className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">

@@ -19,14 +19,12 @@ function runtimeLabel(minutes: number | null, t: (h: number, m: number) => strin
 
 export default function PickScreen({
   pick,
-  busy,
   onAlreadySeen,
   onWatched,
   onNotTonight,
   context,
 }: {
   pick: Pick;
-  busy: boolean;
   onAlreadySeen: () => void;
   onWatched: () => void;
   onNotTonight: () => void;
@@ -98,18 +96,16 @@ export default function PickScreen({
           <button
             type="button"
             onClick={onAlreadySeen}
-            disabled={busy}
-            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97]"
           >
             {t.pick.alreadySeen}
           </button>
           <button
             type="button"
             onClick={onNotTonight}
-            disabled={busy}
-            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97]"
           >
-            {busy ? t.pick.busy : t.pick.notTonight}
+            {t.pick.notTonight}
           </button>
         </div>
       </div>

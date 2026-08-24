@@ -332,7 +332,6 @@ export default function EveningFlow() {
               onEra={setEra}
               onBack={() => setStage("who")}
               onPick={() => fetchPick(seenIds, refusedTitles)}
-              busy={busy}
             />
           )}
         </div>
@@ -340,14 +339,17 @@ export default function EveningFlow() {
 
       {stage === "pick" && pick && (
         <div key="pick" className="screen-enter flex flex-1 flex-col">
-          <PickScreen
-            pick={pick}
-            busy={busy}
-            onAlreadySeen={handleAlreadySeen}
-            onWatched={() => setStage("feedback")}
-            onNotTonight={handleNotTonight}
-            context={{ time, brain, era, genreWish }}
-          />
+          {busy ? (
+            <LoadingScreen />
+          ) : (
+            <PickScreen
+              pick={pick}
+              onAlreadySeen={handleAlreadySeen}
+              onWatched={() => setStage("feedback")}
+              onNotTonight={handleNotTonight}
+              context={{ time, brain, era, genreWish }}
+            />
+          )}
         </div>
       )}
 

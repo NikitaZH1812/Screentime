@@ -1,7 +1,7 @@
 import { missingSupabaseKeys } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import EveningFlow from "./EveningFlow";
-import LoginScreen from "./screens/LoginScreen";
+import OnboardingGate from "./OnboardingGate";
 
 export const preferredRegion = "dub1";
 
@@ -23,6 +23,6 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return <LoginScreen />;
+  if (!user) return <OnboardingGate />;
   return <EveningFlow />;
 }
