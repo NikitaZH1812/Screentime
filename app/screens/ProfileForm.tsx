@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { GENRES, SERVICES } from "@/lib/genres";
+import { useLang } from "@/lib/LangContext";
+import { genreLabel, GENRES, SERVICES } from "@/lib/genres";
 import { emptyPerson, type Person } from "@/lib/types";
 import TagInput from "../components/TagInput";
 import FilmSearch from "../components/FilmSearch";
@@ -58,6 +59,7 @@ export default function ProfileForm({
   onSave: (person: Person) => void;
   onCancel: () => void;
 }) {
+  const { t, lang } = useLang();
   const [person, setPerson] = useState<Person>(initial ?? emptyPerson());
 
   function set<K extends keyof Person>(key: K, value: Person[K]) {
@@ -79,20 +81,20 @@ export default function ProfileForm({
         onClick={onCancel}
         className="mb-8 self-start text-sm text-white/40"
       >
-        ← назад
+        {t.profileForm.back}
       </button>
 
-      <Field label="Ім'я">
+      <Field label={t.profileForm.name}>
         <input
           type="text"
           value={person.name}
           onChange={(e) => set("name", e.target.value)}
-          placeholder="як тебе звати"
+          placeholder={t.profileForm.namePlaceholder}
           className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] placeholder:text-white/25 focus:border-white/30 focus:outline-none"
         />
       </Field>
 
-      <Field label="Заборонені жанри" hint="ніколи не пропонувати">
+      <Field label={t.profileForm.bannedGenres} hint={t.profileForm.bannedGenresHint}>
         <div className="flex flex-wrap gap-2">
           {GENRES.map((g) => (
             <Chip
@@ -100,40 +102,37 @@ export default function ProfileForm({
               on={person.genre_exclusions.includes(g.label)}
               onClick={() => toggle("genre_exclusions", g.label)}
             >
-              {g.label}
+              {genreLabel(g.label, lang)}
             </Chip>
           ))}
         </div>
       </Field>
 
-      <Field
-        label="Заборонені типи"
-        hint="вужче за жанр: «замки і дракони», «магія», «зомбі»"
-      >
+      <Field label={t.profileForm.bannedTypes} hint={t.profileForm.bannedTypesHint}>
         <TagInput
           value={person.type_exclusions}
           onChange={(v) => set("type_exclusions", v)}
-          placeholder="написати і натиснути Enter"
+          placeholder={t.profileForm.tagInputPlaceholder}
         />
       </Field>
 
-      <Field label="Приклади хорошого" hint="2–3 фільми, які зайшли">
+      <Field label={t.profileForm.goodExamples} hint={t.profileForm.goodExamplesHint}>
         <FilmSearch
           value={person.good_examples}
           onChange={(v) => set("good_examples", v)}
-          placeholder="почни писати назву"
+          placeholder={t.profileForm.filmSearchPlaceholder}
         />
       </Field>
 
-      <Field label="Приклади поганого" hint="те, від чого було нудно чи бридко">
+      <Field label={t.profileForm.badExamples} hint={t.profileForm.badExamplesHint}>
         <FilmSearch
           value={person.bad_examples}
           onChange={(v) => set("bad_examples", v)}
-          placeholder="почни писати назву"
+          placeholder={t.profileForm.filmSearchPlaceholder}
         />
       </Field>
 
-      <Field label="Де дивишся">
+      <Field label={t.profileForm.whereYouWatch}>
         <div className="flex flex-wrap gap-2">
           {SERVICES.map((s) => (
             <Chip
@@ -147,19 +146,19 @@ export default function ProfileForm({
         </div>
       </Field>
 
-      <Field label="Українська аудіодоріжка">
+      <Field label={t.profileForm.ukrainianAudio}>
         <div className="flex gap-2">
           <Chip
             on={person.requires_ukrainian_audio}
             onClick={() => set("requires_ukrainian_audio", true)}
           >
-            обов'язково
+            {t.profileForm.required}
           </Chip>
           <Chip
             on={!person.requires_ukrainian_audio}
             onClick={() => set("requires_ukrainian_audio", false)}
           >
-            не обов'язково
+            {t.profileForm.notRequired}
           </Chip>
         </div>
       </Field>
@@ -171,7 +170,7 @@ export default function ProfileForm({
           disabled={!person.name.trim()}
           className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-25"
         >
-          Зберегти профіль
+          {t.profileForm.save}
         </button>
       </div>
     </>

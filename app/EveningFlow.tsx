@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import { historyFor, recordFeedback, subgroupSignals } from "@/lib/combinations";
 import {
   clearEveningSession,
@@ -53,13 +54,14 @@ export default function EveningFlow() {
   const [notTonightCount, setNotTonightCount] = useState(0);
 
   const hydrated = useRef(false);
+  const { t } = useLang();
 
   useEffect(() => {
     loadProfiles()
       .then(setProfiles)
-      .catch((e) => setError(errorMessage(e, "Не вдалося завантажити профілі")))
+      .catch((e) => setError(errorMessage(e, t.errors.loadProfiles)))
       .finally(() => setProfilesLoading(false));
-  }, []);
+  }, [t]);
 
   // A refresh is not the evening ending — only closing the tab is. Restore
   // from sessionStorage after mount (not during the initial render) so the
@@ -171,7 +173,7 @@ export default function EveningFlow() {
       setPick(data as Pick);
       setStage("pick");
     } catch (e) {
-      setError(errorMessage(e, "Щось пішло не так"));
+      setError(errorMessage(e, t.errors.somethingWrong));
     } finally {
       setBusy(false);
     }
@@ -225,7 +227,7 @@ export default function EveningFlow() {
         const until = await lockGroupFor24h(personIds);
         setLockUntil(until);
       } catch (e) {
-        setError(errorMessage(e, "Не вдалося зберегти паузу"));
+        setError(errorMessage(e, t.errors.savePause));
       } finally {
         setBusy(false);
       }
@@ -276,7 +278,7 @@ export default function EveningFlow() {
             setPersonIds((prev) => prev.filter((p) => p !== id));
             deleteProfile(id)
               .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
-              .catch((e) => setError(errorMessage(e, "Не вдалося видалити")));
+              .catch((e) => setError(errorMessage(e, t.errors.delete)));
           }}
           onNext={() => setStage("dials")}
           onSignOut={() => {
@@ -303,7 +305,7 @@ export default function EveningFlow() {
                 setStage("who");
               })
               .catch((e) =>
-                setError(errorMessage(e, "Не вдалося зберегти профіль")),
+                setError(errorMessage(e, t.errors.saveProfile)),
               );
           }}
           onCancel={() => setStage("who")}

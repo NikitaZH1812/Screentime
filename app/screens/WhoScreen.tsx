@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import type { Person } from "@/lib/types";
+import LangToggle from "../components/LangToggle";
 
 function initials(name: string) {
   return name.trim().slice(0, 1).toUpperCase() || "?";
 }
 
-function summary(p: Person) {
+function summary(p: Person, banned: (n: number) => string) {
   const bits: string[] = [];
   if (p.good_examples.length) {
     bits.push(
@@ -17,8 +19,8 @@ function summary(p: Person) {
         .join(", "),
     );
   }
-  const banned = p.genre_exclusions.length + p.type_exclusions.length;
-  if (banned) bits.push(`${banned} заборон`);
+  const bannedCount = p.genre_exclusions.length + p.type_exclusions.length;
+  if (bannedCount) bits.push(banned(bannedCount));
   return bits.join(" · ");
 }
 
@@ -55,7 +57,9 @@ export default function WhoScreen({
   onNext: () => void;
   onSignOut: () => void;
 }) {
+  const { t } = useLang();
   const [now, setNow] = useState(() => Date.now());
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!lockUntil) return;
@@ -70,24 +74,25 @@ export default function WhoScreen({
 
   return (
     <>
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Хто дивиться</h1>
-        <button type="button" onClick={onSignOut} className="text-xs text-white/25">
-          вийти
-        </button>
+      <div className="mb-8 flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold">{t.who.title}</h1>
+        <div className="flex items-center gap-3">
+          <LangToggle />
+          <button type="button" onClick={onSignOut} className="text-xs text-white/25">
+            {t.who.signOut}
+          </button>
+        </div>
       </div>
 
       {loading ? (
-        <p className="text-[15px] text-white/30">Завантажую…</p>
+        <p className="text-[15px] text-white/30">{t.who.loading}</p>
       ) : profiles.length === 0 ? (
-        <p className="text-[15px] leading-relaxed text-white/40">
-          Тут поки нікого. Створи перший профіль — це займе хвилину і робиться
-          один раз.
-        </p>
+        <p className="text-[15px] leading-relaxed text-white/40">{t.who.empty}</p>
       ) : (
         <div className="space-y-2">
           {profiles.map((p) => {
             const on = selected.includes(p.id);
+            const confirming = confirmingId === p.id;
             return (
               <div
                 key={p.id}
@@ -109,29 +114,53 @@ export default function WhoScreen({
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-[15px]">{p.name}</span>
-                    {summary(p) && (
+                    {summary(p, t.who.banned) && (
                       <span className="block truncate text-xs text-white/30">
-                        {summary(p)}
+                        {summary(p, t.who.banned)}
                       </span>
                     )}
                   </span>
                 </button>
 
                 <div className="flex shrink-0 items-center gap-1 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => onEdit(p.id)}
-                    className="whitespace-nowrap px-2 py-1 text-xs text-white/30"
-                  >
-                    змінити
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(p.id)}
-                    className="px-2 py-1 text-xs text-white/20"
-                  >
-                    ✕
-                  </button>
+                  {confirming ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setConfirmingId(null);
+                          onDelete(p.id);
+                        }}
+                        className="whitespace-nowrap px-2 py-1 text-xs text-red-400"
+                      >
+                        {t.who.deleteConfirm}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingId(null)}
+                        className="whitespace-nowrap px-2 py-1 text-xs text-white/30"
+                      >
+                        {t.who.cancel}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => onEdit(p.id)}
+                        className="whitespace-nowrap px-2 py-1 text-xs text-white/30"
+                      >
+                        {t.who.edit}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingId(p.id)}
+                        className="px-2 py-1 text-xs text-white/20"
+                      >
+                        {t.who.delete}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );
@@ -144,14 +173,13 @@ export default function WhoScreen({
         onClick={onCreate}
         className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-3.5 text-sm text-white/50"
       >
-        + новий профіль
+        {t.who.newProfile}
       </button>
 
       <div className="mt-auto pt-10">
         {locked && lockUntil && (
           <p className="mb-3 text-center text-sm text-white/40">
-            ця компанія вже сказала «не сьогодні» — знову можна через{" "}
-            {countdown(lockUntil, now)}
+            {t.who.lockedUntil(countdown(lockUntil, now))}
           </p>
         )}
         <button
@@ -160,7 +188,7 @@ export default function WhoScreen({
           disabled={selected.length === 0 || locked}
           className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-25"
         >
-          Далі
+          {t.who.next}
         </button>
       </div>
     </>

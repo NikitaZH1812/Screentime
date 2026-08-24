@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import { posterUrl } from "@/lib/tmdbUrls";
 import type { FilmRef } from "@/lib/types";
 
@@ -17,6 +18,7 @@ export default function FilmSearch({
   onChange: (next: FilmRef[]) => void;
   placeholder: string;
 }) {
+  const { t } = useLang();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<FilmRef[]>([]);
   const [loading, setLoading] = useState(false);
@@ -114,12 +116,10 @@ export default function FilmSearch({
         className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] placeholder:text-white/25 focus:border-white/30 focus:outline-none"
       />
 
-      {loading && <p className="mt-2 text-xs text-white/25">шукаю…</p>}
+      {loading && <p className="mt-2 text-xs text-white/25">{t.filmSearch.searching}</p>}
 
       {broken && !loading && query.trim().length >= 2 && (
-        <p className="mt-2 text-xs text-white/30">
-          пошук не працює — Enter, щоб додати назву вручну
-        </p>
+        <p className="mt-2 text-xs text-white/30">{t.filmSearch.broken}</p>
       )}
 
       {results.length > 0 && (
