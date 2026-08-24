@@ -91,14 +91,14 @@ export default function WhoScreen({
             return (
               <div
                 key={p.id}
-                className={`flex items-center gap-3 rounded-2xl border p-3 transition ${
+                className={`flex items-start gap-2 rounded-2xl border p-3 transition ${
                   on ? "border-white bg-white/10" : "border-white/10 bg-white/[0.03]"
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => onToggle(p.id)}
-                  className="flex flex-1 items-center gap-3 text-left"
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold ${
@@ -117,20 +117,22 @@ export default function WhoScreen({
                   </span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => onEdit(p.id)}
-                  className="px-2 py-1 text-xs text-white/30"
-                >
-                  змінити
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDelete(p.id)}
-                  className="px-2 py-1 text-xs text-white/20"
-                >
-                  ✕
-                </button>
+                <div className="flex shrink-0 items-center gap-1 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(p.id)}
+                    className="whitespace-nowrap px-2 py-1 text-xs text-white/30"
+                  >
+                    змінити
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(p.id)}
+                    className="px-2 py-1 text-xs text-white/20"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             );
           })}
