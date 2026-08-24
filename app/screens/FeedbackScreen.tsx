@@ -25,7 +25,9 @@ export default function FeedbackScreen({
   return (
     <div className="flex flex-1 flex-col justify-center">
       <p className="text-sm text-white/40">{t.feedback.yesterdayWeSuggested}</p>
-      <p className="mt-1 text-xl font-semibold">{pick.title}</p>
+      <p className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+        {pick.title}
+      </p>
 
       {watched === null ? (
         <>
@@ -34,14 +36,14 @@ export default function FeedbackScreen({
             <button
               type="button"
               onClick={() => setWatched(true)}
-              className="flex-1 rounded-2xl bg-white py-4 font-semibold text-black"
+              className="flex-1 rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
             >
               {t.feedback.yes}
             </button>
             <button
               type="button"
               onClick={() => onAnswer(false, null)}
-              className="flex-1 rounded-2xl border border-white/10 bg-white/[0.03] py-4"
+              className="flex-1 rounded-2xl border border-white/10 bg-white/[0.03] py-4 transition active:scale-[0.97]"
             >
               {t.feedback.no}
             </button>
@@ -54,14 +56,14 @@ export default function FeedbackScreen({
             <button
               type="button"
               onClick={() => onAnswer(true, true)}
-              className="flex-1 rounded-2xl bg-white py-4 font-semibold text-black"
+              className="flex-1 rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
             >
               {t.feedback.yes}
             </button>
             <button
               type="button"
               onClick={() => onAnswer(true, false)}
-              className="flex-1 rounded-2xl border border-white/10 bg-white/[0.03] py-4"
+              className="flex-1 rounded-2xl border border-white/10 bg-white/[0.03] py-4 transition active:scale-[0.97]"
             >
               {t.feedback.notReally}
             </button>

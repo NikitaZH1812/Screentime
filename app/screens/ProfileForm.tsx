@@ -39,9 +39,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-3.5 py-2 text-sm transition ${
+      className={`rounded-full border px-3.5 py-2 text-sm transition active:scale-95 ${
         on
-          ? "border-white bg-white text-black"
+          ? "border-accent bg-accent text-accent-fg"
           : "border-white/10 bg-white/[0.03] text-white/70"
       }`}
     >
@@ -168,7 +168,7 @@ export default function ProfileForm({
           type="button"
           onClick={() => onSave({ ...person, name: person.name.trim() })}
           disabled={!person.name.trim()}
-          className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-25"
+          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97] disabled:opacity-25 disabled:active:scale-100"
         >
           {t.profileForm.save}
         </button>

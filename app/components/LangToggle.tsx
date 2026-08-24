@@ -12,8 +12,8 @@ export default function LangToggle() {
           key={l}
           type="button"
           onClick={() => setLang(l)}
-          className={`rounded-full px-2.5 py-1 transition ${
-            lang === l ? "bg-white text-black" : "text-white/35"
+          className={`rounded-full px-2.5 py-1 transition active:scale-95 ${
+            lang === l ? "bg-accent text-accent-fg" : "text-white/35"
           }`}
         >
           {l === "en" ? "EN" : "UA"}

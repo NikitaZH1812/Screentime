@@ -75,7 +75,9 @@ export default function WhoScreen({
   return (
     <>
       <div className="mb-8 flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">{t.who.title}</h1>
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+          {t.who.title}
+        </h1>
         <div className="flex items-center gap-3">
           <LangToggle />
           <button type="button" onClick={onSignOut} className="text-xs text-white/25">
@@ -97,7 +99,9 @@ export default function WhoScreen({
               <div
                 key={p.id}
                 className={`flex items-start gap-2 rounded-2xl border p-3 transition ${
-                  on ? "border-white bg-white/10" : "border-white/10 bg-white/[0.03]"
+                  on
+                    ? "border-accent bg-accent/10"
+                    : "border-white/10 bg-white/[0.03]"
                 }`}
               >
                 <button
@@ -106,8 +110,8 @@ export default function WhoScreen({
                   className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
                   <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold ${
-                      on ? "bg-white text-black" : "bg-white/10 text-white/60"
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold transition ${
+                      on ? "bg-accent text-accent-fg" : "bg-white/10 text-white/60"
                     }`}
                   >
                     {initials(p.name)}
@@ -171,7 +175,7 @@ export default function WhoScreen({
       <button
         type="button"
         onClick={onCreate}
-        className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-3.5 text-sm text-white/50"
+        className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-3.5 text-sm text-white/50 transition hover:border-accent/40 hover:text-accent active:scale-[0.98]"
       >
         {t.who.newProfile}
       </button>
@@ -186,7 +190,7 @@ export default function WhoScreen({
           type="button"
           onClick={onNext}
           disabled={selected.length === 0 || locked}
-          className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-25"
+          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97] disabled:opacity-25 disabled:active:scale-100"
         >
           {t.who.next}
         </button>
