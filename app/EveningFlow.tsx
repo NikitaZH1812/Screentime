@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { historyFor, recordFeedback, subgroupSignals } from "@/lib/combinations";
 import { activeLockFor, lockGroupFor24h } from "@/lib/locks";
 import { needsUkrainianAudio, unionSubscriptions } from "@/lib/people";
+import { errorMessage } from "@/lib/errorMessage";
 import { deleteProfile, loadProfiles, saveProfile } from "@/lib/profiles";
 import { logRefusal } from "@/lib/refusalLog";
 import { createClient } from "@/lib/supabase/client";
@@ -50,7 +51,7 @@ export default function EveningFlow() {
   useEffect(() => {
     loadProfiles()
       .then(setProfiles)
-      .catch((e) => setError(e instanceof Error ? e.message : "Не вдалося завантажити профілі"))
+      .catch((e) => setError(errorMessage(e, "Не вдалося завантажити профілі")))
       .finally(() => setProfilesLoading(false));
   }, []);
 
@@ -63,7 +64,10 @@ export default function EveningFlow() {
     }
     activeLockFor(personIds)
       .then(setLockUntil)
-      .catch(() => setLockUntil(null));
+      .catch((e) => {
+        console.error("[lock check] failed:", e);
+        setLockUntil(null);
+      });
   }, [personIds]);
 
   const selectedPeople = profiles.filter((p) => personIds.includes(p.id));
@@ -112,7 +116,7 @@ export default function EveningFlow() {
       setPick(data as Pick);
       setStage("pick");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Щось пішло не так");
+      setError(errorMessage(e, "Щось пішло не так"));
     } finally {
       setBusy(false);
     }
@@ -166,7 +170,7 @@ export default function EveningFlow() {
         const until = await lockGroupFor24h(personIds);
         setLockUntil(until);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Не вдалося зберегти паузу");
+        setError(errorMessage(e, "Не вдалося зберегти паузу"));
       } finally {
         setBusy(false);
       }
@@ -217,7 +221,7 @@ export default function EveningFlow() {
             setPersonIds((prev) => prev.filter((p) => p !== id));
             deleteProfile(id)
               .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
-              .catch((e) => setError(e instanceof Error ? e.message : "Не вдалося видалити"));
+              .catch((e) => setError(errorMessage(e, "Не вдалося видалити")));
           }}
           onNext={() => setStage("dials")}
           onSignOut={() => {
@@ -243,7 +247,7 @@ export default function EveningFlow() {
                 setStage("who");
               })
               .catch((e) =>
-                setError(e instanceof Error ? e.message : "Не вдалося зберегти профіль"),
+                setError(errorMessage(e, "Не вдалося зберегти профіль")),
               );
           }}
           onCancel={() => setStage("who")}
