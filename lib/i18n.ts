@@ -17,15 +17,14 @@ type Dict = {
     lockedUntil: (countdown: string) => string;
   };
   login: {
-    tagline: string;
     continueWithGoogle: string;
     continuingGoogle: string;
-    orEmail: string;
-    emailPlaceholder: string;
-    sendLink: string;
-    sending: string;
-    checkEmail: string;
-    sentTo: (email: string) => string;
+  };
+  onboarding: {
+    skip: string;
+    next: string;
+    getStarted: string;
+    slides: { title: string; body: string }[];
   };
   profileForm: {
     back: string;
@@ -64,7 +63,6 @@ type Dict = {
     wishClose: string;
     wishOpen: string;
     pick: string;
-    picking: string;
   };
   loading: string;
   pick: {
@@ -72,7 +70,6 @@ type Dict = {
     watched: string;
     alreadySeen: string;
     notTonight: string;
-    busy: string;
     runtime: (h: number, m: number) => string;
   };
   tags: {
@@ -121,15 +118,27 @@ export const DICT: Record<Lang, Dict> = {
         `this group already said "not tonight" — try again in ${countdown}`,
     },
     login: {
-      tagline: "one link, no passwords",
       continueWithGoogle: "Continue with Google",
       continuingGoogle: "One moment…",
-      orEmail: "or by email",
-      emailPlaceholder: "your email",
-      sendLink: "Send link",
-      sending: "Sending…",
-      checkEmail: "Check your email",
-      sentTo: (email) => `We sent a link to ${email}. Tap it — you're in.`,
+    },
+    onboarding: {
+      skip: "skip",
+      next: "Next",
+      getStarted: "Get started",
+      slides: [
+        {
+          title: "One film, not a list",
+          body: "Say who's in the room right now and get one pick — not a pile of options to argue over.",
+        },
+        {
+          title: "Two taps instead of an argument",
+          body: "How much time we have, how much brain is left — that's it. We'll figure out the mood from that and the fact that it's late on a weeknight.",
+        },
+        {
+          title: "One refusal, no endless scrolling",
+          body: "Didn't land? Say why with one tap and get a replacement. Twice in a row, and the evening just closes until tomorrow.",
+        },
+      ],
     },
     profileForm: {
       back: "← back",
@@ -168,7 +177,6 @@ export const DICT: Record<Lang, Dict> = {
       wishClose: "− no preference",
       wishOpen: "+ want something specific",
       pick: "Find it",
-      picking: "Searching…",
     },
     loading: "Finding something…",
     pick: {
@@ -176,7 +184,6 @@ export const DICT: Record<Lang, Dict> = {
       watched: "Watched it",
       alreadySeen: "already seen",
       notTonight: "not tonight",
-      busy: "one moment…",
       runtime: (h, m) => (h ? `${h}h ${m}m` : `${m}m`),
     },
     tags: {
@@ -224,15 +231,27 @@ export const DICT: Record<Lang, Dict> = {
         `ця компанія вже сказала «не сьогодні» — знову можна через ${countdown}`,
     },
     login: {
-      tagline: "одне посилання, без паролів",
       continueWithGoogle: "Продовжити з Google",
       continuingGoogle: "Хвилинку…",
-      orEmail: "або через email",
-      emailPlaceholder: "твій email",
-      sendLink: "Надіслати посилання",
-      sending: "Надсилаю…",
-      checkEmail: "Перевір пошту",
-      sentTo: (email) => `Надіслали посилання на ${email}. Тапни його — і ти всередині.`,
+    },
+    onboarding: {
+      skip: "пропустити",
+      next: "Далі",
+      getStarted: "Почати",
+      slides: [
+        {
+          title: "Один фільм, а не список",
+          body: "Скажи, хто зараз у кімнаті — і отримай одну пораду, а не купу варіантів для сперечання.",
+        },
+        {
+          title: "Два тапи замість суперечки",
+          body: "Скільки часу є і скільки лишилось сил — оце і все. Настрій ми вгадаємо самі: пізній вечір буднього дня вже підказує.",
+        },
+        {
+          title: "Одна відмова — без нескінченного гортання",
+          body: "Не зайшло — скажи чому одним тапом і отримай заміну. Двічі поспіль — і вечір просто закривається до завтра.",
+        },
+      ],
     },
     profileForm: {
       back: "← назад",
@@ -271,7 +290,6 @@ export const DICT: Record<Lang, Dict> = {
       wishClose: "− без конкретики",
       wishOpen: "+ хочеться чогось конкретного",
       pick: "Підібрати",
-      picking: "Шукаю…",
     },
     loading: "Підбираємо…",
     pick: {
@@ -279,7 +297,6 @@ export const DICT: Record<Lang, Dict> = {
       watched: "Подивились",
       alreadySeen: "вже бачили",
       notTonight: "не сьогодні",
-      busy: "хвилинку…",
       runtime: (h, m) => (h ? `${h}год ${m}хв` : `${m}хв`),
     },
     tags: {

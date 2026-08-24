@@ -61,7 +61,6 @@ export default function DialsScreen({
   onEra,
   onBack,
   onPick,
-  busy,
 }: {
   time: TimeBucket;
   brain: BrainLevel;
@@ -73,7 +72,6 @@ export default function DialsScreen({
   onEra: (v: Era) => void;
   onBack: () => void;
   onPick: () => void;
-  busy?: boolean;
 }) {
   const { t, lang } = useLang();
   const [wishOpen, setWishOpen] = useState(genreWish !== null);
@@ -163,10 +161,9 @@ export default function DialsScreen({
         <button
           type="button"
           onClick={onPick}
-          disabled={busy}
-          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
+          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
         >
-          {busy ? t.dials.picking : t.dials.pick}
+          {t.dials.pick}
         </button>
       </div>
     </>
