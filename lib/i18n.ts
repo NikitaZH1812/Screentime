@@ -127,20 +127,16 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Get started",
       slides: [
         {
-          title: "Not 20 minutes of arguing",
-          body: "The problem was never a lack of options — it's 20 minutes of negotiating and then watching nothing. We pick one film for you, with a reason why, in about 15 seconds.",
+          title: "Not 40 minutes of arguing",
+          body: "The problem was never a lack of options — it's 40 minutes of negotiating and then watching nothing. We pick one film for you, with a reason why, in about 15 seconds.",
         },
         {
           title: "Set up once, use every evening",
-          body: "First, a one-time profile: a couple of favorite films, your subscriptions. After that, every evening is 3 taps: who's in the room · how much time and energy you have · “Find it”.",
+          body: "Set up your profile once — a couple of favorite films, your subscriptions — and every evening after that comes down to three taps: who's in the room, how much time and energy you have, and “Find it”.",
         },
         {
-          title: "One taste-based refusal",
-          body: "Didn't land? Tap why. Already seen or not on your services — that's on us, unlimited retries. Just not the mood — one replacement, then the evening closes for tonight.",
-        },
-        {
-          title: "We don't check your subscriptions live",
-          body: "Availability comes from what you type into your profile by hand — sometimes we'll get it wrong and the link won't work.",
+          title: "Reroll freely — or once a day",
+          body: "Already seen it? Reroll as many times as you want, that's on us. Just not your taste? One reroll, then the evening closes for the day.",
         },
       ],
     },
@@ -244,20 +240,16 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Почати",
       slides: [
         {
-          title: "Не 20 хвилин суперечок",
-          body: "Проблема не в тому, що нема що подивитись — проблема в 20 хвилинах сперечань і вимкненому телевізорі. Ми обираємо один фільм за вас, з поясненням чому, десь за 15 секунд.",
+          title: "Не 40 хвилин суперечок",
+          body: "Проблема не в тому, що нема що подивитись — проблема в 40 хвилинах сперечань і вимкненому телевізорі. Ми обираємо один фільм за вас, з поясненням чому, десь за 15 секунд.",
         },
         {
           title: "Налаштуй раз — користуйся щовечора",
-          body: "Спершу профіль один раз: пара улюблених фільмів, твої підписки. Далі щовечора — 3 тапи: хто в кімнаті · скільки часу і сил є · «Підібрати».",
+          body: "Один раз налаштуй профіль — пара улюблених фільмів, твої підписки, — а далі щовечора все зводиться до трьох тапів: хто в кімнаті, скільки часу і сил є, і «Підібрати».",
         },
         {
-          title: "Одна відмова через смак",
-          body: "Не зайшло — тапни чому. Вже бачили чи немає на сервісі — це наша помилка, спроб без ліміту. Просто не той настрій — одна заміна, і на сьогодні все.",
-        },
-        {
-          title: "Ми не бачимо твої підписки наживо",
-          body: "Доступність фільму визначаємо з того, що ти вказав у профілі вручну — інколи помилимось, і посилання приведе не туди.",
+          title: "Реролл без ліміту — або раз на добу",
+          body: "Вже бачили — рерольте скільки завгодно, це наша помилка, не ваша. Не сподобалось за смаком — лише один реролл, і вечір закривається до завтра.",
         },
       ],
     },
