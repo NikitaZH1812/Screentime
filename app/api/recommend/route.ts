@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { pickOne } from "@/lib/claude";
-import { missingKeys } from "@/lib/env";
+import { missingKeys, missingSupabaseKeys } from "@/lib/env";
 import { unionGenreExclusions } from "@/lib/people";
+import { createClient } from "@/lib/supabase/server";
 import { retrieveCandidates } from "@/lib/tmdb";
-import type { BrainLevel, Era, Person, TimeBucket } from "@/lib/types";
+import type { BrainLevel, CombinationContext, Era, Person, TimeBucket } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,11 +16,28 @@ type Body = {
   genreWish: string | null;
   era: Era;
   kidsInRoom: boolean;
+  combination: CombinationContext;
   excludeIds?: number[];
   refusedTitles?: string[];
 };
 
 export async function POST(req: Request) {
+  const missingAuth = missingSupabaseKeys();
+  if (missingAuth.length) {
+    return NextResponse.json(
+      { error: `Не налаштовано: ${missingAuth.join(", ")}` },
+      { status: 500 },
+    );
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Не авторизовано" }, { status: 401 });
+  }
+
   const body = (await req.json()) as Body;
   const people = body.people ?? [];
 
@@ -55,6 +73,7 @@ export async function POST(req: Request) {
       genreWish: body.genreWish,
       era: body.era,
       kidsInRoom: body.kidsInRoom,
+      combination: body.combination,
       relaxed,
       refusedTitles: body.refusedTitles ?? [],
     });

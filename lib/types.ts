@@ -29,9 +29,10 @@ export type Person = {
   requires_ukrainian_audio: boolean;
 };
 
+/** id is empty until Supabase assigns a real one on insert — the empty string is the "new" sentinel. */
 export function emptyPerson(): Person {
   return {
-    id: crypto.randomUUID(),
+    id: "",
     name: "",
     genre_exclusions: [],
     type_exclusions: [],
@@ -91,21 +92,27 @@ export type Pick = {
 
 export type RefusalReason = "already_seen" | "unavailable" | "not_tonight";
 
-export type RefusalLogEntry = {
-  timestamp: string;
-  group: string[];
+/**
+ * Level 3 of the data model: the combination. Belongs to an exact group of
+ * people, not to any person in it — [a, b] has its own history, distinct
+ * from a's alone, b's alone, or [a, b, c]. Learned ONLY from this: never
+ * computed as an average or intersection of individual taste.
+ */
+export type CombinationFeedback = {
   tmdb_id: number;
   title: string;
-  reason: RefusalReason;
-  declared_subscriptions: string[];
-  requires_ukrainian_audio: boolean;
-};
-
-export type FeedbackLogEntry = {
   timestamp: string;
-  group: string[];
-  tmdb_id: number;
-  title: string;
   watched: boolean;
   liked: boolean | null;
+};
+
+/**
+ * What the recommendation pipeline actually receives for a given evening's
+ * group. `history` is this exact group's own record. `subgroups` is the
+ * unknown-combination fallback: what worked for known smaller groups inside
+ * this one, handed to the model as-is — never averaged into a score by us.
+ */
+export type CombinationContext = {
+  history: CombinationFeedback[];
+  subgroups: { names: string[]; history: CombinationFeedback[] }[];
 };

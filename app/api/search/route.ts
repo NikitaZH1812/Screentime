@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
-import { missingKeys } from "@/lib/env";
+import { missingKeys, missingSupabaseKeys } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 import { searchFilms } from "@/lib/tmdb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
+  if (missingSupabaseKeys().length) {
+    return NextResponse.json({ error: "Не налаштовано Supabase" }, { status: 500 });
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Не авторизовано" }, { status: 401 });
+  }
+
   const query = new URL(req.url).searchParams.get("q")?.trim() ?? "";
   if (query.length < 2) return NextResponse.json([]);
 

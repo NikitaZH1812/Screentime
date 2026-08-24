@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadProfiles, saveProfiles } from "@/lib/profiles";
+import { historyFor, recordFeedback, subgroupSignals } from "@/lib/combinations";
+import { needsUkrainianAudio, unionSubscriptions } from "@/lib/people";
+import { deleteProfile, loadProfiles, saveProfile } from "@/lib/profiles";
+import { logRefusal } from "@/lib/refusalLog";
+import { createClient } from "@/lib/supabase/client";
 import type {
   BrainLevel,
+  CombinationContext,
   Era,
   Person,
   Pick,
@@ -23,6 +28,7 @@ type Stage = "who" | "profile" | "dials" | "pick" | "closed" | "feedback";
 export default function EveningFlow() {
   const [stage, setStage] = useState<Stage>("who");
   const [profiles, setProfiles] = useState<Person[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [personIds, setPersonIds] = useState<string[]>([]);
 
@@ -41,12 +47,12 @@ export default function EveningFlow() {
   const [refusedTitles, setRefusedTitles] = useState<string[]>([]);
   const [notTonightCount, setNotTonightCount] = useState(0);
 
-  useEffect(() => setProfiles(loadProfiles()), []);
-
-  function persist(next: Person[]) {
-    setProfiles(next);
-    saveProfiles(next);
-  }
+  useEffect(() => {
+    loadProfiles()
+      .then(setProfiles)
+      .catch((e) => setError(e instanceof Error ? e.message : "Не вдалося завантажити профілі"))
+      .finally(() => setProfilesLoading(false));
+  }, []);
 
   const selectedPeople = profiles.filter((p) => personIds.includes(p.id));
 
@@ -54,6 +60,19 @@ export default function EveningFlow() {
     setBusy(true);
     setError(null);
     try {
+      const [history, subgroups] = await Promise.all([
+        historyFor(personIds),
+        subgroupSignals(personIds),
+      ]);
+      const nameById = new Map(profiles.map((p) => [p.id, p.name]));
+      const combination: CombinationContext = {
+        history,
+        subgroups: subgroups.map((s) => ({
+          names: s.personIds.map((id) => nameById.get(id) ?? "?"),
+          history: s.history,
+        })),
+      };
+
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,6 +83,7 @@ export default function EveningFlow() {
           genreWish,
           era,
           kidsInRoom,
+          combination,
           excludeIds,
           refusedTitles: refused,
         }),
@@ -89,15 +109,13 @@ export default function EveningFlow() {
   async function refuse(reason: RefusalReason) {
     if (!pick) return;
 
-    void fetch("/api/refuse", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        people: selectedPeople,
-        tmdb_id: pick.tmdb_id,
-        title: pick.title,
-        reason,
-      }),
+    void logRefusal({
+      personNames: selectedPeople.map((p) => p.name),
+      tmdb_id: pick.tmdb_id,
+      title: pick.title,
+      reason,
+      declaredSubscriptions: unionSubscriptions(selectedPeople),
+      requiresUkrainianAudio: needsUkrainianAudio(selectedPeople),
     });
 
     const nextSeen = [...seenIds, pick.tmdb_id];
@@ -135,6 +153,7 @@ export default function EveningFlow() {
       {stage === "who" && (
         <WhoScreen
           profiles={profiles}
+          loading={profilesLoading}
           selected={personIds}
           onToggle={(id) =>
             setPersonIds((prev) =>
@@ -150,10 +169,17 @@ export default function EveningFlow() {
             setStage("profile");
           }}
           onDelete={(id) => {
-            persist(profiles.filter((p) => p.id !== id));
             setPersonIds((prev) => prev.filter((p) => p !== id));
+            deleteProfile(id)
+              .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
+              .catch((e) => setError(e instanceof Error ? e.message : "Не вдалося видалити"));
           }}
           onNext={() => setStage("dials")}
+          onSignOut={() => {
+            void createClient()
+              .auth.signOut()
+              .then(() => window.location.reload());
+          }}
         />
       )}
 
@@ -161,13 +187,19 @@ export default function EveningFlow() {
         <ProfileForm
           initial={profiles.find((p) => p.id === editingId)}
           onSave={(person) => {
-            const exists = profiles.some((p) => p.id === person.id);
-            persist(
-              exists
-                ? profiles.map((p) => (p.id === person.id ? person : p))
-                : [...profiles, person],
-            );
-            setStage("who");
+            const isNew = !person.id;
+            saveProfile(person, isNew)
+              .then((saved) => {
+                setProfiles((prev) =>
+                  isNew
+                    ? [...prev, saved]
+                    : prev.map((p) => (p.id === saved.id ? saved : p)),
+                );
+                setStage("who");
+              })
+              .catch((e) =>
+                setError(e instanceof Error ? e.message : "Не вдалося зберегти профіль"),
+              );
           }}
           onCancel={() => setStage("who")}
         />
@@ -208,16 +240,11 @@ export default function EveningFlow() {
         <FeedbackScreen
           pick={pick}
           onAnswer={(watched, liked) => {
-            void fetch("/api/feedback", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                people: selectedPeople,
-                tmdb_id: pick.tmdb_id,
-                title: pick.title,
-                watched,
-                liked,
-              }),
+            void recordFeedback(personIds, {
+              tmdb_id: pick.tmdb_id,
+              title: pick.title,
+              watched,
+              liked,
             });
             restart();
           }}
