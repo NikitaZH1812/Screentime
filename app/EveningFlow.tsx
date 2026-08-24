@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { historyFor, recordFeedback, subgroupSignals } from "@/lib/combinations";
+import { activeLockFor, lockGroupFor24h } from "@/lib/locks";
 import { needsUkrainianAudio, unionSubscriptions } from "@/lib/people";
 import { deleteProfile, loadProfiles, saveProfile } from "@/lib/profiles";
 import { logRefusal } from "@/lib/refusalLog";
@@ -12,7 +13,6 @@ import type {
   Era,
   Person,
   Pick,
-  RefusalReason,
   TimeBucket,
 } from "@/lib/types";
 import WhoScreen from "./screens/WhoScreen";
@@ -20,10 +20,9 @@ import ProfileForm from "./screens/ProfileForm";
 import DialsScreen from "./screens/DialsScreen";
 import LoadingScreen from "./screens/LoadingScreen";
 import PickScreen from "./screens/PickScreen";
-import ClosedScreen from "./screens/ClosedScreen";
 import FeedbackScreen from "./screens/FeedbackScreen";
 
-type Stage = "who" | "profile" | "dials" | "pick" | "closed" | "feedback";
+type Stage = "who" | "profile" | "dials" | "pick" | "feedback";
 
 export default function EveningFlow() {
   const [stage, setStage] = useState<Stage>("who");
@@ -31,6 +30,7 @@ export default function EveningFlow() {
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [personIds, setPersonIds] = useState<string[]>([]);
+  const [lockUntil, setLockUntil] = useState<string | null>(null);
 
   const [time, setTime] = useState<TimeBucket>("medium");
   const [brain, setBrain] = useState<BrainLevel>("low");
@@ -53,6 +53,18 @@ export default function EveningFlow() {
       .catch((e) => setError(e instanceof Error ? e.message : "Не вдалося завантажити профілі"))
       .finally(() => setProfilesLoading(false));
   }, []);
+
+  // Checked against whatever is currently selected — a different pairing
+  // than the one that said "не сьогодні" is never blocked by that lock.
+  useEffect(() => {
+    if (personIds.length === 0) {
+      setLockUntil(null);
+      return;
+    }
+    activeLockFor(personIds)
+      .then(setLockUntil)
+      .catch(() => setLockUntil(null));
+  }, [personIds]);
 
   const selectedPeople = profiles.filter((p) => personIds.includes(p.id));
 
@@ -106,21 +118,36 @@ export default function EveningFlow() {
     }
   }
 
-  /**
-   * The lock sits on taste, not on our own data gaps.
-   *
-   * already_seen and unavailable are our failures — they replace instantly
-   * and never count. not_tonight is theirs: it buys exactly one replacement,
-   * and the second one closes the evening.
-   */
-  async function refuse(reason: RefusalReason) {
+  /** already_seen — our failure. Instant replacement, never counted. */
+  async function handleAlreadySeen() {
     if (!pick) return;
 
     void logRefusal({
       personNames: selectedPeople.map((p) => p.name),
       tmdb_id: pick.tmdb_id,
       title: pick.title,
-      reason,
+      reason: "already_seen",
+      declaredSubscriptions: unionSubscriptions(selectedPeople),
+      requiresUkrainianAudio: needsUkrainianAudio(selectedPeople),
+    });
+
+    const nextSeen = [...seenIds, pick.tmdb_id];
+    setSeenIds(nextSeen);
+    await fetchPick(nextSeen, refusedTitles);
+  }
+
+  /**
+   * not_tonight — theirs. One replacement; the second locks this exact
+   * group out for 24h instead of showing a dead-end screen.
+   */
+  async function handleNotTonight() {
+    if (!pick) return;
+
+    void logRefusal({
+      personNames: selectedPeople.map((p) => p.name),
+      tmdb_id: pick.tmdb_id,
+      title: pick.title,
+      reason: "not_tonight",
       declaredSubscriptions: unionSubscriptions(selectedPeople),
       requiresUkrainianAudio: needsUkrainianAudio(selectedPeople),
     });
@@ -128,18 +155,28 @@ export default function EveningFlow() {
     const nextSeen = [...seenIds, pick.tmdb_id];
     setSeenIds(nextSeen);
 
-    if (reason !== "not_tonight") {
-      await fetchPick(nextSeen, refusedTitles);
-      return;
-    }
-
     const count = notTonightCount + 1;
     setNotTonightCount(count);
     const nextRefused = [...refusedTitles, pick.title];
     setRefusedTitles(nextRefused);
 
     if (count >= 2) {
-      setStage("closed");
+      setBusy(true);
+      try {
+        const until = await lockGroupFor24h(personIds);
+        setLockUntil(until);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Не вдалося зберегти паузу");
+      } finally {
+        setBusy(false);
+      }
+      // Back to "who" with the same people still selected, so the lock and
+      // its countdown are visible immediately instead of vanishing on reset.
+      setStage("who");
+      setPick(null);
+      setSeenIds([]);
+      setRefusedTitles([]);
+      setNotTonightCount(0);
       return;
     }
     await fetchPick(nextSeen, nextRefused);
@@ -162,6 +199,7 @@ export default function EveningFlow() {
           profiles={profiles}
           loading={profilesLoading}
           selected={personIds}
+          lockUntil={lockUntil}
           onToggle={(id) =>
             setPersonIds((prev) =>
               prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
@@ -236,12 +274,12 @@ export default function EveningFlow() {
         <PickScreen
           pick={pick}
           busy={busy}
-          onRefuse={refuse}
+          onAlreadySeen={handleAlreadySeen}
+          onWatched={() => setStage("feedback")}
+          onNotTonight={handleNotTonight}
           context={{ time, brain, era, genreWish, kidsInRoom }}
         />
       )}
-
-      {stage === "closed" && <ClosedScreen onRestart={restart} />}
 
       {stage === "feedback" && pick && (
         <FeedbackScreen
@@ -263,16 +301,6 @@ export default function EveningFlow() {
         <p className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
         </p>
-      )}
-
-      {pick && stage === "pick" && (
-        <button
-          type="button"
-          onClick={() => setStage("feedback")}
-          className="mt-6 self-center text-xs text-white/15"
-        >
-          симулювати наступний день
-        </button>
       )}
     </main>
   );

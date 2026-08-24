@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { Person } from "@/lib/types";
 
 function initials(name: string) {
@@ -21,10 +22,20 @@ function summary(p: Person) {
   return bits.join(" · ");
 }
 
+function countdown(untilIso: string, now: number): string {
+  const ms = new Date(untilIso).getTime() - now;
+  if (ms <= 0) return "0:00:00";
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  const s = Math.floor((ms % 60_000) / 1000);
+  return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 export default function WhoScreen({
   profiles,
   loading,
   selected,
+  lockUntil,
   onToggle,
   onCreate,
   onEdit,
@@ -35,6 +46,8 @@ export default function WhoScreen({
   profiles: Person[];
   loading: boolean;
   selected: string[];
+  /** Set only when the exact selected group is locked out. */
+  lockUntil: string | null;
   onToggle: (id: string) => void;
   onCreate: () => void;
   onEdit: (id: string) => void;
@@ -42,6 +55,19 @@ export default function WhoScreen({
   onNext: () => void;
   onSignOut: () => void;
 }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!lockUntil) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [lockUntil]);
+
+  // Ticks toward zero locally rather than trusting lockUntil's mere presence —
+  // otherwise "Далі" stays disabled forever once the countdown hits zero,
+  // until something re-triggers the parent's Supabase check.
+  const locked = lockUntil !== null && new Date(lockUntil).getTime() > now;
+
   return (
     <>
       <div className="mb-8 flex items-center justify-between">
@@ -120,10 +146,16 @@ export default function WhoScreen({
       </button>
 
       <div className="mt-auto pt-10">
+        {locked && lockUntil && (
+          <p className="mb-3 text-center text-sm text-white/40">
+            ця компанія вже сказала «не сьогодні» — знову можна через{" "}
+            {countdown(lockUntil, now)}
+          </p>
+        )}
         <button
           type="button"
           onClick={onNext}
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || locked}
           className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-25"
         >
           Далі

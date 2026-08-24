@@ -57,6 +57,8 @@ create table if not exists refusal_log (
   person_names text[] not null,
   tmdb_id bigint not null,
   title text not null,
+  -- 'unavailable' stays in the allowed set for backward compatibility with
+  -- historical rows even though the UI no longer offers it as a reason.
   reason text not null check (reason in ('already_seen', 'unavailable', 'not_tonight')),
   declared_subscriptions text[] not null default '{}',
   requires_ukrainian_audio boolean not null default false,
@@ -67,4 +69,22 @@ alter table refusal_log enable row level security;
 
 drop policy if exists "refusal log is owner-scoped" on refusal_log;
 create policy "refusal log is owner-scoped" on refusal_log
+  for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+
+-- The second "не сьогодні" this evening locks that exact group for 24h.
+-- Scoped to the group (not the browser) so it holds regardless of who in
+-- the pair opens the app next, and survives a refresh. Insert-only: a
+-- lock check takes the latest still-future locked_until for the group.
+create table if not exists evening_locks (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  person_ids uuid[] not null,
+  locked_until timestamptz not null,
+  created_at timestamptz not null default now()
+);
+
+alter table evening_locks enable row level security;
+
+drop policy if exists "evening locks are owner-scoped" on evening_locks;
+create policy "evening locks are owner-scoped" on evening_locks
   for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);

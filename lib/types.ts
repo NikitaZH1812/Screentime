@@ -90,7 +90,7 @@ export type Pick = {
   reason: string;
 };
 
-export type RefusalReason = "already_seen" | "unavailable" | "not_tonight";
+export type RefusalReason = "already_seen" | "not_tonight";
 
 /**
  * Level 3 of the data model: the combination. Belongs to an exact group of
