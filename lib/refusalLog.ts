@@ -4,10 +4,12 @@ import type { RefusalReason } from "./types";
 /**
  * The refusal log is a V1 feature, not analytics we add later.
  *
- * Availability is user-declared in V1 — no API tells us whether a film is
- * really on their services with Ukrainian audio. Every `unavailable` refusal
- * is therefore the only evidence we will have when we decide, in a month,
- * whether the availability API is unnecessary or is the whole product.
+ * The `unavailable` reason (nothing on their services / no Ukrainian audio)
+ * was dropped from the UI by product decision — only `already_seen` and
+ * `not_tonight` remain. That means this log no longer measures the
+ * availability-failure rate CLAUDE.md originally wanted it for; it still
+ * captures declared subscriptions and audio requirement per entry in case
+ * that signal needs to come back.
  *
  * Written straight from the browser client, RLS-scoped to the owner — same
  * pattern as profiles and combination feedback, no API route needed.

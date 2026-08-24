@@ -1,23 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { posterUrl, watchUrl } from "@/lib/tmdbUrls";
 import {
   brainChipLabel,
   eraChipLabel,
   timeChipLabel,
 } from "@/lib/eveningLabels";
-import type { BrainLevel, Era, Pick, RefusalReason, TimeBucket } from "@/lib/types";
-
-const REASONS: { value: RefusalReason; label: string; note: string }[] = [
-  { value: "already_seen", label: "вже бачили", note: "наша провина" },
-  {
-    value: "unavailable",
-    label: "нема або без української",
-    note: "наша провина",
-  },
-  { value: "not_tonight", label: "не сьогодні", note: "просто не те" },
-];
+import type { BrainLevel, Era, Pick, TimeBucket } from "@/lib/types";
 
 function runtimeLabel(minutes: number | null) {
   if (!minutes) return null;
@@ -29,12 +18,16 @@ function runtimeLabel(minutes: number | null) {
 export default function PickScreen({
   pick,
   busy,
-  onRefuse,
+  onAlreadySeen,
+  onWatched,
+  onNotTonight,
   context,
 }: {
   pick: Pick;
   busy: boolean;
-  onRefuse: (reason: RefusalReason) => void;
+  onAlreadySeen: () => void;
+  onWatched: () => void;
+  onNotTonight: () => void;
   context: {
     time: TimeBucket;
     brain: BrainLevel;
@@ -43,7 +36,6 @@ export default function PickScreen({
     kidsInRoom: boolean;
   };
 }) {
-  const [sheet, setSheet] = useState(false);
   const poster = posterUrl(pick.poster_path);
 
   // Makes the dials visibly felt: this is what was actually used to pick.
@@ -59,11 +51,7 @@ export default function PickScreen({
     <>
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={poster}
-          alt=""
-          className="mb-6 w-full rounded-2xl"
-        />
+        <img src={poster} alt="" className="mb-6 w-full rounded-2xl" />
       )}
 
       <h1 className="text-2xl font-semibold">{pick.title}</h1>
@@ -79,50 +67,42 @@ export default function PickScreen({
         {pick.reason}
       </p>
 
-      <div className="mt-auto pt-10">
+      <div className="mt-auto space-y-2 pt-10">
         <a
           href={watchUrl(pick.tmdb_id)}
           target="_blank"
           rel="noreferrer"
-          className="block w-full rounded-2xl bg-white py-4 text-center font-semibold text-black"
+          className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white"
         >
-          Дивитись
+          Детальніше
         </a>
 
-        {!sheet ? (
+        <button
+          type="button"
+          onClick={onWatched}
+          className="w-full rounded-2xl bg-white py-4 font-semibold text-black"
+        >
+          Подивились
+        </button>
+
+        <div className="flex gap-2 pt-1">
           <button
             type="button"
-            onClick={() => setSheet(true)}
+            onClick={onAlreadySeen}
             disabled={busy}
-            className="mt-3 w-full py-3 text-sm text-white/40 disabled:opacity-40"
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
           >
-            {busy ? "Шукаю інше…" : "не це"}
+            вже бачили
           </button>
-        ) : (
-          <div className="mt-3 space-y-2">
-            {REASONS.map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => {
-                  setSheet(false);
-                  onRefuse(r.value);
-                }}
-                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-left text-sm"
-              >
-                <span>{r.label}</span>
-                <span className="text-xs text-white/30">{r.note}</span>
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setSheet(false)}
-              className="w-full py-2 text-sm text-white/30"
-            >
-              відміна
-            </button>
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={onNotTonight}
+            disabled={busy}
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
+          >
+            {busy ? "хвилинку…" : "не сьогодні"}
+          </button>
+        </div>
       </div>
     </>
   );
