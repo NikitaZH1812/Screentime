@@ -9,6 +9,15 @@ const RUNTIME_CAP: Record<TimeBucket, number | null> = {
   any: null,
 };
 
+/**
+ * Each candidate costs one /movie/{id} request (for runtime, which discover
+ * doesn't return) plus its share of the prompt the model has to read. 20 is
+ * still a wide field to choose from and roughly a third faster than 30 on
+ * both counts.
+ */
+const CANDIDATE_COUNT = 20;
+const MIN_CANDIDATES = 8;
+
 /** The era wish is soft — a bias like the genre wish, dropped first if it starves the pool. */
 function eraWindow(era: Era): { gte?: string; lte?: string } {
   const year = new Date().getFullYear();
@@ -143,6 +152,8 @@ export async function retrieveCandidates(opts: {
   const cap = RUNTIME_CAP[opts.time];
   const eraLabel = opts.era === "old" ? "старі" : opts.era === "new" ? "нові" : null;
 
+  const startedAt = Date.now();
+
   // kidsInRoom rides along on every rung below — it is a safety constraint,
   // never a taste preference, so it is never the thing that gets relaxed.
   const base = { excludeGenres, kidsInRoom: opts.kidsInRoom };
@@ -179,21 +190,33 @@ export async function retrieveCandidates(opts: {
   ];
 
   for (const step of ladder) {
-    const rows = [
-      ...(await discover({ ...step.params, page: 1 })),
-      ...(await discover({ ...step.params, page: 2 })),
-    ];
+    // Both pages at once: they don't depend on each other, and doing them
+    // sequentially doubled this rung's latency for nothing.
+    const pages = await Promise.all([
+      discover({ ...step.params, page: 1 }),
+      discover({ ...step.params, page: 2 }),
+    ]);
+    const rows = pages.flat();
 
     const ids = rows
       .map((r) => r.id)
       .filter((id) => !opts.excludeIds.includes(id))
-      .slice(0, 30);
+      .slice(0, CANDIDATE_COUNT);
+
+    // Cheap check before the expensive part: if this rung can't produce
+    // enough candidates anyway, don't spend N detail requests proving it.
+    if (ids.length < MIN_CANDIDATES) continue;
 
     const full = (await Promise.all(ids.map(details))).filter(
       (c): c is Candidate => c !== null,
     );
 
-    if (full.length >= 8) return { candidates: full, relaxed: step.relaxed };
+    if (full.length >= MIN_CANDIDATES) {
+      console.log(
+        `[timing] tmdb ${Date.now() - startedAt}ms · rung ${ladder.indexOf(step) + 1} · ${full.length} candidates`,
+      );
+      return { candidates: full, relaxed: step.relaxed };
+    }
   }
 
   // Nothing survived even the loosest query — return whatever popular films

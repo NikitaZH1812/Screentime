@@ -115,7 +115,7 @@ function candidateList(candidates: Candidate[]) {
       (c) =>
         `[${c.tmdb_id}] ${c.title}${c.year ? ` (${c.year})` : ""} · ${
           c.runtime ? `${c.runtime}хв` : "тривалість невідома"
-        } · ${c.genres.join(", ")} · ${c.vote_average.toFixed(1)}\n${c.overview.slice(0, 300)}`,
+        } · ${c.genres.join(", ")} · ${c.vote_average.toFixed(1)}\n${c.overview.slice(0, 180)}`,
     )
     .join("\n\n");
 }
@@ -149,9 +149,17 @@ export async function pickOne(opts: {
     ? `\n\nЦього вечора вони вже відмовились від: ${opts.refusedTitles.join(", ")}. Не пропонуй щось у тому ж дусі.`
     : "";
 
+  const startedAt = Date.now();
+
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 1000,
+    // The output is one id plus one sentence — 1000 was far more headroom
+    // than this can ever use.
+    max_tokens: 400,
+    // Picking one item from a supplied list is not a reasoning-heavy task,
+    // and the default (high) was making the user wait for depth that adds
+    // nothing here.
+    output_config: { effort: "low" },
     system: SYSTEM,
     tools: [
       {
@@ -193,6 +201,8 @@ export async function pickOne(opts: {
       },
     ],
   });
+
+  console.log(`[timing] claude ${Date.now() - startedAt}ms`);
 
   const block = response.content.find((b) => b.type === "tool_use");
   if (!block || block.type !== "tool_use") {
