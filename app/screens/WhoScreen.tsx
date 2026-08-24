@@ -23,26 +23,37 @@ function summary(p: Person) {
 
 export default function WhoScreen({
   profiles,
+  loading,
   selected,
   onToggle,
   onCreate,
   onEdit,
   onDelete,
   onNext,
+  onSignOut,
 }: {
   profiles: Person[];
+  loading: boolean;
   selected: string[];
   onToggle: (id: string) => void;
   onCreate: () => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onNext: () => void;
+  onSignOut: () => void;
 }) {
   return (
     <>
-      <h1 className="mb-8 text-xl font-semibold">Хто дивиться</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Хто дивиться</h1>
+        <button type="button" onClick={onSignOut} className="text-xs text-white/25">
+          вийти
+        </button>
+      </div>
 
-      {profiles.length === 0 ? (
+      {loading ? (
+        <p className="text-[15px] text-white/30">Завантажую…</p>
+      ) : profiles.length === 0 ? (
         <p className="text-[15px] leading-relaxed text-white/40">
           Тут поки нікого. Створи перший профіль — це займе хвилину і робиться
           один раз.
