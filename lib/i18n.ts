@@ -127,8 +127,8 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Get started",
       slides: [
         {
-          title: "Not 20 minutes of arguing",
-          body: "The problem was never a lack of options — it's 20 minutes of negotiating and then watching nothing. We pick one film for you, with a reason why, in about 15 seconds.",
+          title: "Not 40 minutes of arguing",
+          body: "The problem was never a lack of options — it's 40 minutes of negotiating and then watching nothing. We pick one film for you, with a reason why, in about 15 seconds.",
         },
         {
           title: "Set up once, use every evening",
@@ -137,10 +137,6 @@ export const DICT: Record<Lang, Dict> = {
         {
           title: "One taste-based refusal",
           body: "Didn't land? Tap why. Already seen or not on your services — that's on us, unlimited retries. Just not the mood — one replacement, then the evening closes for tonight.",
-        },
-        {
-          title: "We don't check your subscriptions live",
-          body: "Availability comes from what you type into your profile by hand — sometimes we'll get it wrong and the link won't work.",
         },
       ],
     },
@@ -244,8 +240,8 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Почати",
       slides: [
         {
-          title: "Не 20 хвилин суперечок",
-          body: "Проблема не в тому, що нема що подивитись — проблема в 20 хвилинах сперечань і вимкненому телевізорі. Ми обираємо один фільм за вас, з поясненням чому, десь за 15 секунд.",
+          title: "Не 40 хвилин суперечок",
+          body: "Проблема не в тому, що нема що подивитись — проблема в 40 хвилинах сперечань і вимкненому телевізорі. Ми обираємо один фільм за вас, з поясненням чому, десь за 15 секунд.",
         },
         {
           title: "Налаштуй раз — користуйся щовечора",
@@ -254,10 +250,6 @@ export const DICT: Record<Lang, Dict> = {
         {
           title: "Одна відмова через смак",
           body: "Не зайшло — тапни чому. Вже бачили чи немає на сервісі — це наша помилка, спроб без ліміту. Просто не той настрій — одна заміна, і на сьогодні все.",
-        },
-        {
-          title: "Ми не бачимо твої підписки наживо",
-          body: "Доступність фільму визначаємо з того, що ти вказав у профілі вручну — інколи помилимось, і посилання приведе не туди.",
         },
       ],
     },
