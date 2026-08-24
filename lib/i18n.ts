@@ -127,16 +127,20 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Get started",
       slides: [
         {
-          title: "One film, not a list",
-          body: "Say who's in the room right now and get one pick — not a pile of options to argue over.",
+          title: "Not 20 minutes of arguing",
+          body: "The problem was never a lack of options — it's 20 minutes of negotiating and then watching nothing. We pick one film for you, with a reason why, in about 15 seconds.",
         },
         {
-          title: "Two taps instead of an argument",
-          body: "How much time we have, how much brain is left — that's it. We'll figure out the mood from that and the fact that it's late on a weeknight.",
+          title: "Set up once, use every evening",
+          body: "First, a one-time profile: a couple of favorite films, your subscriptions. After that, every evening is 3 taps: who's in the room · how much time and energy you have · “Find it”.",
         },
         {
-          title: "One refusal, no endless scrolling",
-          body: "Didn't land? Say why with one tap and get a replacement. Twice in a row, and the evening just closes until tomorrow.",
+          title: "One taste-based refusal",
+          body: "Didn't land? Tap why. Already seen or not on your services — that's on us, unlimited retries. Just not the mood — one replacement, then the evening closes for tonight.",
+        },
+        {
+          title: "We don't check your subscriptions live",
+          body: "Availability comes from what you type into your profile by hand — sometimes we'll get it wrong and the link won't work.",
         },
       ],
     },
@@ -240,16 +244,20 @@ export const DICT: Record<Lang, Dict> = {
       getStarted: "Почати",
       slides: [
         {
-          title: "Один фільм, а не список",
-          body: "Скажи, хто зараз у кімнаті — і отримай одну пораду, а не купу варіантів для сперечання.",
+          title: "Не 20 хвилин суперечок",
+          body: "Проблема не в тому, що нема що подивитись — проблема в 20 хвилинах сперечань і вимкненому телевізорі. Ми обираємо один фільм за вас, з поясненням чому, десь за 15 секунд.",
         },
         {
-          title: "Два тапи замість суперечки",
-          body: "Скільки часу є і скільки лишилось сил — оце і все. Настрій ми вгадаємо самі: пізній вечір буднього дня вже підказує.",
+          title: "Налаштуй раз — користуйся щовечора",
+          body: "Спершу профіль один раз: пара улюблених фільмів, твої підписки. Далі щовечора — 3 тапи: хто в кімнаті · скільки часу і сил є · «Підібрати».",
         },
         {
-          title: "Одна відмова — без нескінченного гортання",
-          body: "Не зайшло — скажи чому одним тапом і отримай заміну. Двічі поспіль — і вечір просто закривається до завтра.",
+          title: "Одна відмова через смак",
+          body: "Не зайшло — тапни чому. Вже бачили чи немає на сервісі — це наша помилка, спроб без ліміту. Просто не той настрій — одна заміна, і на сьогодні все.",
+        },
+        {
+          title: "Ми не бачимо твої підписки наживо",
+          body: "Доступність фільму визначаємо з того, що ти вказав у профілі вручну — інколи помилимось, і посилання приведе не туди.",
         },
       ],
     },
