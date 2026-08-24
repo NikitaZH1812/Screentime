@@ -10,7 +10,13 @@ import type {
   TimeBucket,
 } from "./types";
 
-const MODEL = "claude-sonnet-4-6";
+// Sonnet 4.6 took ~9.6s wall-clock for this call in production (in=4646,
+// out=194, stop=tool_use — a clean finish, not truncation or a retry loop),
+// which is far more than picking one id from a supplied list plus one
+// sentence should cost. Switched to Haiku 4.5 for exactly this narrower
+// task; strict tool schema still makes an out-of-list pick impossible
+// regardless of which model is choosing.
+const MODEL = "claude-haiku-4-5-20251001";
 
 const SYSTEM = `Ти підбираєш ОДИН фільм на сьогоднішній вечір для людей, які зараз у кімнаті.
 
@@ -156,10 +162,9 @@ export async function pickOne(opts: {
     // The output is one id plus one sentence — 1000 was far more headroom
     // than this can ever use.
     max_tokens: 400,
-    // Picking one item from a supplied list is not a reasoning-heavy task,
-    // and the default (high) was making the user wait for depth that adds
-    // nothing here.
-    output_config: { effort: "low" },
+    // No thinking by default on this model, and output_config.effort isn't
+    // supported on Haiku 4.5 (400s if sent) — the model swap itself is the
+    // speed lever here, not a config knob on top of it.
     system: SYSTEM,
     tools: [
       {
