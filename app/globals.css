@@ -1,11 +1,66 @@
 @import "tailwindcss";
 
+@theme {
+  --color-accent: #e3a458;
+  --color-accent-strong: #f2b972;
+  --color-accent-fg: #1c1208;
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+}
+
 :root {
   color-scheme: dark;
 }
 
 body {
-  background: #08080b;
-  color: #f2f2f5;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -8%, rgba(227, 164, 88, 0.14), transparent 60%),
+    radial-gradient(ellipse 140% 90% at 50% 110%, rgba(30, 18, 10, 0.9), transparent 65%),
+    #0b0806;
+  color: #f3ece2;
   -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* A screen swapping in: the whole point of the product is one screen at a
+   time, so the transition between them is where personality lives. */
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.screen-enter {
+  animation: screen-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The pick's poster: this is the one "ta-da" moment in the whole product. */
+@keyframes poster-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.poster-enter {
+  animation: poster-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes accent-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(227, 164, 88, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(227, 164, 88, 0);
+  }
+}
+.accent-pulse {
+  animation: accent-pulse 1.8s ease-out infinite;
 }

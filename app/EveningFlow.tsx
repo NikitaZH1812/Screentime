@@ -256,105 +256,117 @@ export default function EveningFlow() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-10">
       {stage === "who" && (
-        <WhoScreen
-          profiles={profiles}
-          loading={profilesLoading}
-          selected={personIds}
-          lockUntil={lockUntil}
-          onToggle={(id) =>
-            setPersonIds((prev) =>
-              prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
-            )
-          }
-          onCreate={() => {
-            setEditingId(null);
-            setStage("profile");
-          }}
-          onEdit={(id) => {
-            setEditingId(id);
-            setStage("profile");
-          }}
-          onDelete={(id) => {
-            setPersonIds((prev) => prev.filter((p) => p !== id));
-            deleteProfile(id)
-              .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
-              .catch((e) => setError(errorMessage(e, t.errors.delete)));
-          }}
-          onNext={() => setStage("dials")}
-          onSignOut={() => {
-            clearEveningSession();
-            void createClient()
-              .auth.signOut()
-              .then(() => window.location.reload());
-          }}
-        />
+        <div key="who" className="screen-enter flex flex-1 flex-col">
+          <WhoScreen
+            profiles={profiles}
+            loading={profilesLoading}
+            selected={personIds}
+            lockUntil={lockUntil}
+            onToggle={(id) =>
+              setPersonIds((prev) =>
+                prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+              )
+            }
+            onCreate={() => {
+              setEditingId(null);
+              setStage("profile");
+            }}
+            onEdit={(id) => {
+              setEditingId(id);
+              setStage("profile");
+            }}
+            onDelete={(id) => {
+              setPersonIds((prev) => prev.filter((p) => p !== id));
+              deleteProfile(id)
+                .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
+                .catch((e) => setError(errorMessage(e, t.errors.delete)));
+            }}
+            onNext={() => setStage("dials")}
+            onSignOut={() => {
+              clearEveningSession();
+              void createClient()
+                .auth.signOut()
+                .then(() => window.location.reload());
+            }}
+          />
+        </div>
       )}
 
       {stage === "profile" && (
-        <ProfileForm
-          initial={profiles.find((p) => p.id === editingId)}
-          onSave={(person) => {
-            const isNew = !person.id;
-            saveProfile(person, isNew)
-              .then((saved) => {
-                setProfiles((prev) =>
-                  isNew
-                    ? [...prev, saved]
-                    : prev.map((p) => (p.id === saved.id ? saved : p)),
+        <div key="profile" className="screen-enter flex flex-1 flex-col">
+          <ProfileForm
+            initial={profiles.find((p) => p.id === editingId)}
+            onSave={(person) => {
+              const isNew = !person.id;
+              saveProfile(person, isNew)
+                .then((saved) => {
+                  setProfiles((prev) =>
+                    isNew
+                      ? [...prev, saved]
+                      : prev.map((p) => (p.id === saved.id ? saved : p)),
+                  );
+                  setStage("who");
+                })
+                .catch((e) =>
+                  setError(errorMessage(e, t.errors.saveProfile)),
                 );
-                setStage("who");
-              })
-              .catch((e) =>
-                setError(errorMessage(e, t.errors.saveProfile)),
-              );
-          }}
-          onCancel={() => setStage("who")}
-        />
+            }}
+            onCancel={() => setStage("who")}
+          />
+        </div>
       )}
 
-      {stage === "dials" && (busy ? (
-        <LoadingScreen />
-      ) : (
-        <DialsScreen
-          time={time}
-          brain={brain}
-          genreWish={genreWish}
-          era={era}
-          onTime={setTime}
-          onBrain={setBrain}
-          onGenreWish={setGenreWish}
-          onEra={setEra}
-          onBack={() => setStage("who")}
-          onPick={() => fetchPick(seenIds, refusedTitles)}
-          busy={busy}
-        />
-      ))}
+      {stage === "dials" && (
+        <div key="dials" className="screen-enter flex flex-1 flex-col">
+          {busy ? (
+            <LoadingScreen />
+          ) : (
+            <DialsScreen
+              time={time}
+              brain={brain}
+              genreWish={genreWish}
+              era={era}
+              onTime={setTime}
+              onBrain={setBrain}
+              onGenreWish={setGenreWish}
+              onEra={setEra}
+              onBack={() => setStage("who")}
+              onPick={() => fetchPick(seenIds, refusedTitles)}
+              busy={busy}
+            />
+          )}
+        </div>
+      )}
 
       {stage === "pick" && pick && (
-        <PickScreen
-          pick={pick}
-          busy={busy}
-          onAlreadySeen={handleAlreadySeen}
-          onWatched={() => setStage("feedback")}
-          onNotTonight={handleNotTonight}
-          context={{ time, brain, era, genreWish }}
-        />
+        <div key="pick" className="screen-enter flex flex-1 flex-col">
+          <PickScreen
+            pick={pick}
+            busy={busy}
+            onAlreadySeen={handleAlreadySeen}
+            onWatched={() => setStage("feedback")}
+            onNotTonight={handleNotTonight}
+            context={{ time, brain, era, genreWish }}
+          />
+        </div>
       )}
 
       {stage === "feedback" && pick && (
-        <FeedbackScreen
-          pick={pick}
-          onAnswer={(watched, liked) => {
-            void recordFeedback(personIds, {
-              tmdb_id: pick.tmdb_id,
-              title: pick.title,
-              watched,
-              liked,
-            });
-            restart();
-          }}
-          onDismiss={restart}
-        />
+        <div key="feedback" className="screen-enter flex flex-1 flex-col">
+          <FeedbackScreen
+            pick={pick}
+            onAnswer={(watched, liked) => {
+              void recordFeedback(personIds, {
+                tmdb_id: pick.tmdb_id,
+                title: pick.title,
+                watched,
+                liked,
+              });
+              restart();
+            }}
+            onDismiss={restart}
+          />
+        </div>
       )}
 
       {error && (

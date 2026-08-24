@@ -39,9 +39,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-4 py-2.5 text-sm transition ${
+      className={`rounded-full border px-4 py-2.5 text-sm transition active:scale-95 ${
         on
-          ? "border-white bg-white text-black"
+          ? "border-accent bg-accent text-accent-fg"
           : "border-white/10 bg-white/[0.03] text-white/80"
       }`}
     >
@@ -140,7 +140,7 @@ export default function DialsScreen({
           setWishOpen(next);
           if (!next) onGenreWish(null);
         }}
-        className="mb-4 self-start text-sm text-white/40 underline underline-offset-4"
+        className="mb-4 self-start text-sm text-white/40 underline underline-offset-4 transition hover:text-accent"
       >
         {wishOpen ? t.dials.wishClose : t.dials.wishOpen}
       </button>
@@ -164,7 +164,7 @@ export default function DialsScreen({
           type="button"
           onClick={onPick}
           disabled={busy}
-          className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-40"
+          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
         >
           {busy ? t.dials.picking : t.dials.pick}
         </button>

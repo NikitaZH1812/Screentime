@@ -52,10 +52,16 @@ export default function PickScreen({
     <>
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={poster} alt="" className="mb-6 w-full rounded-2xl" />
+        <img
+          src={poster}
+          alt=""
+          className="poster-enter mb-6 w-full rounded-2xl shadow-[0_20px_60px_-15px_rgba(227,164,88,0.35)]"
+        />
       )}
 
-      <h1 className="text-2xl font-semibold">{pick.title}</h1>
+      <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold leading-tight tracking-tight">
+        {pick.title}
+      </h1>
       <p className="mt-1 text-sm text-white/40">
         {[pick.year, runtimeLabel(pick.runtime, t.pick.runtime)]
           .filter(Boolean)
@@ -75,7 +81,7 @@ export default function PickScreen({
           href={watchUrl(pick.tmdb_id)}
           target="_blank"
           rel="noreferrer"
-          className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white"
+          className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white transition hover:border-accent/50 active:scale-[0.98]"
         >
           {t.pick.details}
         </a>
@@ -83,7 +89,7 @@ export default function PickScreen({
         <button
           type="button"
           onClick={onWatched}
-          className="w-full rounded-2xl bg-white py-4 font-semibold text-black"
+          className="w-full rounded-2xl bg-accent py-4 font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
         >
           {t.pick.watched}
         </button>
@@ -93,7 +99,7 @@ export default function PickScreen({
             type="button"
             onClick={onAlreadySeen}
             disabled={busy}
-            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
           >
             {t.pick.alreadySeen}
           </button>
@@ -101,7 +107,7 @@ export default function PickScreen({
             type="button"
             onClick={onNotTonight}
             disabled={busy}
-            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
+            className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 transition active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
           >
             {busy ? t.pick.busy : t.pick.notTonight}
           </button>

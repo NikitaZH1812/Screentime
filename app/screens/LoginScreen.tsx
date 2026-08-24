@@ -62,7 +62,9 @@ export default function LoginScreen() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center px-5">
       <div className="mb-1 flex w-full items-center justify-center gap-3">
-        <h1 className="text-xl font-semibold">Screentime</h1>
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-accent">
+          Screentime
+        </h1>
       </div>
       <div className="mb-8 flex items-center gap-3">
         <p className="text-sm text-white/40">{t.login.tagline}</p>
@@ -73,7 +75,7 @@ export default function LoginScreen() {
         type="button"
         onClick={withGoogle}
         disabled={busy}
-        className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-30"
+        className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white py-4 font-semibold text-black transition active:scale-[0.98] disabled:opacity-30 disabled:active:scale-100"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
           <path
@@ -117,7 +119,7 @@ export default function LoginScreen() {
           <button
             type="submit"
             disabled={busy || !email.trim()}
-            className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] py-4 font-semibold disabled:opacity-30"
+            className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] py-4 font-semibold transition active:scale-[0.98] disabled:opacity-30 disabled:active:scale-100"
           >
             {busy ? t.login.sending : t.login.sendLink}
           </button>
