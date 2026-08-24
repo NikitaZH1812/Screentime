@@ -51,10 +51,14 @@ export async function recordFeedback(
 /** This exact group's own history — the only thing that counts as "their" taste. */
 export async function historyFor(personIds: string[]): Promise<CombinationFeedback[]> {
   const supabase = createClient();
+  const target = sortedIds(personIds);
+
+  // .eq() stringifies a JS array via Array.prototype.toString() ("a,b"), not
+  // the Postgres array literal PostgREST needs ("{a,b}") — build it by hand.
   const { data, error } = await supabase
     .from("combination_feedback")
     .select("tmdb_id, title, watched, liked, created_at")
-    .eq("person_ids", sortedIds(personIds));
+    .filter("person_ids", "eq", `{${target.join(",")}}`);
 
   if (error) throw error;
   return (data as Row[]).map(fromRow);
