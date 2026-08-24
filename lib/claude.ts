@@ -202,7 +202,9 @@ export async function pickOne(opts: {
     ],
   });
 
-  console.log(`[timing] claude ${Date.now() - startedAt}ms`);
+  console.log(
+    `[timing] claude ${Date.now() - startedAt}ms · stop=${response.stop_reason} · in=${response.usage.input_tokens} out=${response.usage.output_tokens}`,
+  );
 
   const block = response.content.find((b) => b.type === "tool_use");
   if (!block || block.type !== "tool_use") {
