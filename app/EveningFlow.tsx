@@ -73,6 +73,13 @@ export default function EveningFlow() {
         })),
       };
 
+      // "Already seen" is a hard constraint per the architecture — and for
+      // this exact group, we actually know what that means: whatever they've
+      // already watched together, liked or not. Without this, the same film
+      // keeps winning every evening once it's the strongest taste anchor.
+      const alreadyWatched = history.filter((h) => h.watched).map((h) => h.tmdb_id);
+      const excludeWithHistory = [...new Set([...excludeIds, ...alreadyWatched])];
+
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,7 +91,7 @@ export default function EveningFlow() {
           era,
           kidsInRoom,
           combination,
-          excludeIds,
+          excludeIds: excludeWithHistory,
           refusedTitles: refused,
         }),
       });
