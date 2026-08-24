@@ -138,6 +138,10 @@ export const DICT: Record<Lang, Dict> = {
           title: "Reroll freely — or once a day",
           body: "Already seen it? Reroll as many times as you want, that's on us. Just not your taste? One reroll, then the evening closes for the day.",
         },
+        {
+          title: "It learns your group, not just you",
+          body: "Tell us the next day if it landed, and we remember what actually works for this exact group watching together — never an average of what each of you likes alone.",
+        },
       ],
     },
     profileForm: {
@@ -250,6 +254,10 @@ export const DICT: Record<Lang, Dict> = {
         {
           title: "Реролл без ліміту — або раз на добу",
           body: "Вже бачили — рерольте скільки завгодно, це наша помилка, не ваша. Не сподобалось за смаком — лише один реролл, і вечір закривається до завтра.",
+        },
+        {
+          title: "Адаптується під вашу компанію",
+          body: "Наступного дня питаємо, чи зайшло, і запам'ятовуємо, що реально працює саме для цієї компанії разом — а не середнє з того, що любить кожен окремо.",
         },
       ],
     },
