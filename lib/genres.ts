@@ -1,3 +1,5 @@
+export { genreLabel } from "./i18n";
+
 /** Client-safe genre table. Labels are what people pick; ids are what TMDB filters on. */
 export const GENRES: { label: string; id: number }[] = [
   { label: "бойовик", id: 28 },

@@ -1,27 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import type { BrainLevel, Era, TimeBucket } from "@/lib/types";
 // The evening wish: deliberately tiny and hidden behind a toggle. A situational
 // bias, not a mood picker, and it never reaches a person's profile.
-import { WISH_GENRES } from "@/lib/genres";
-
-const TIME: { value: TimeBucket; label: string }[] = [
-  { value: "short", label: "менше 1.5 год" },
-  { value: "medium", label: "десь 2 год" },
-  { value: "any", label: "не важливо" },
-];
-
-const BRAIN: { value: BrainLevel; label: string }[] = [
-  { value: "low", label: "на нулі — щось легке" },
-  { value: "normal", label: "є сили — можна складніше" },
-];
-
-const ERA: { value: Era; label: string }[] = [
-  { value: "old", label: "перевірене старе" },
-  { value: "any", label: "без різниці" },
-  { value: "new", label: "щось нове" },
-];
+import { genreLabel, WISH_GENRES } from "@/lib/genres";
 
 function Row({
   label,
@@ -71,12 +55,10 @@ export default function DialsScreen({
   brain,
   genreWish,
   era,
-  kidsInRoom,
   onTime,
   onBrain,
   onGenreWish,
   onEra,
-  onKidsInRoom,
   onBack,
   onPick,
   busy,
@@ -85,17 +67,33 @@ export default function DialsScreen({
   brain: BrainLevel;
   genreWish: string | null;
   era: Era;
-  kidsInRoom: boolean;
   onTime: (v: TimeBucket) => void;
   onBrain: (v: BrainLevel) => void;
   onGenreWish: (v: string | null) => void;
   onEra: (v: Era) => void;
-  onKidsInRoom: (v: boolean) => void;
   onBack: () => void;
   onPick: () => void;
   busy?: boolean;
 }) {
+  const { t, lang } = useLang();
   const [wishOpen, setWishOpen] = useState(genreWish !== null);
+
+  const TIME: { value: TimeBucket; label: string }[] = [
+    { value: "short", label: t.dials.timeShort },
+    { value: "medium", label: t.dials.timeMedium },
+    { value: "any", label: t.dials.timeAny },
+  ];
+
+  const BRAIN: { value: BrainLevel; label: string }[] = [
+    { value: "low", label: t.dials.brainLow },
+    { value: "normal", label: t.dials.brainNormal },
+  ];
+
+  const ERA: { value: Era; label: string }[] = [
+    { value: "old", label: t.dials.eraOld },
+    { value: "any", label: t.dials.eraAny },
+    { value: "new", label: t.dials.eraNew },
+  ];
 
   return (
     <>
@@ -104,21 +102,18 @@ export default function DialsScreen({
         onClick={onBack}
         className="mb-8 self-start text-sm text-white/40"
       >
-        ← назад
+        {t.dials.back}
       </button>
 
-      <Row label="Скільки часу є">
-        {TIME.map((t) => (
-          <Chip key={t.value} on={time === t.value} onClick={() => onTime(t.value)}>
-            {t.label}
+      <Row label={t.dials.time}>
+        {TIME.map((opt) => (
+          <Chip key={opt.value} on={time === opt.value} onClick={() => onTime(opt.value)}>
+            {opt.label}
           </Chip>
         ))}
       </Row>
 
-      <Row
-        label="Скільки лишилось сил"
-        hint="визначає, наскільки просте чи важке за сюжетом обирати"
-      >
+      <Row label={t.dials.brain} hint={t.dials.brainHint}>
         {BRAIN.map((b) => (
           <Chip
             key={b.value}
@@ -130,16 +125,7 @@ export default function DialsScreen({
         ))}
       </Row>
 
-      <Row label="Хто в кімнаті">
-        <Chip on={!kidsInRoom} onClick={() => onKidsInRoom(false)}>
-          тільки дорослі
-        </Chip>
-        <Chip on={kidsInRoom} onClick={() => onKidsInRoom(true)}>
-          є діти
-        </Chip>
-      </Row>
-
-      <Row label="Старе чи нове">
+      <Row label={t.dials.era}>
         {ERA.map((e) => (
           <Chip key={e.value} on={era === e.value} onClick={() => onEra(e.value)}>
             {e.label}
@@ -156,7 +142,7 @@ export default function DialsScreen({
         }}
         className="mb-4 self-start text-sm text-white/40 underline underline-offset-4"
       >
-        {wishOpen ? "− без конкретики" : "+ хочеться чогось конкретного"}
+        {wishOpen ? t.dials.wishClose : t.dials.wishOpen}
       </button>
 
       {wishOpen && (
@@ -167,7 +153,7 @@ export default function DialsScreen({
               on={genreWish === g}
               onClick={() => onGenreWish(genreWish === g ? null : g)}
             >
-              {g}
+              {genreLabel(g, lang)}
             </Chip>
           ))}
         </div>
@@ -180,7 +166,7 @@ export default function DialsScreen({
           disabled={busy}
           className="w-full rounded-2xl bg-white py-4 font-semibold text-black disabled:opacity-40"
         >
-          {busy ? "Шукаю…" : "Підібрати"}
+          {busy ? t.dials.picking : t.dials.pick}
         </button>
       </div>
     </>

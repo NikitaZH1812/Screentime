@@ -1,18 +1,20 @@
 "use client";
 
+import { useLang } from "@/lib/LangContext";
 import { posterUrl, watchUrl } from "@/lib/tmdbUrls";
 import {
   brainChipLabel,
   eraChipLabel,
   timeChipLabel,
 } from "@/lib/eveningLabels";
+import { genreLabel } from "@/lib/genres";
 import type { BrainLevel, Era, Pick, TimeBucket } from "@/lib/types";
 
-function runtimeLabel(minutes: number | null) {
+function runtimeLabel(minutes: number | null, t: (h: number, m: number) => string) {
   if (!minutes) return null;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  return h ? `${h}год ${m}хв` : `${m}хв`;
+  return t(h, m);
 }
 
 export default function PickScreen({
@@ -33,19 +35,18 @@ export default function PickScreen({
     brain: BrainLevel;
     era: Era;
     genreWish: string | null;
-    kidsInRoom: boolean;
   };
 }) {
+  const { t, lang } = useLang();
   const poster = posterUrl(pick.poster_path);
 
   // Makes the dials visibly felt: this is what was actually used to pick.
   const tags = [
-    timeChipLabel(context.time),
-    brainChipLabel(context.brain),
-    eraChipLabel(context.era),
-    context.genreWish,
-    context.kidsInRoom ? "з дітьми" : null,
-  ].filter((t): t is string => Boolean(t));
+    timeChipLabel(context.time, lang),
+    brainChipLabel(context.brain, lang),
+    eraChipLabel(context.era, lang),
+    context.genreWish ? genreLabel(context.genreWish, lang) : null,
+  ].filter((tag): tag is string => Boolean(tag));
 
   return (
     <>
@@ -56,7 +57,9 @@ export default function PickScreen({
 
       <h1 className="text-2xl font-semibold">{pick.title}</h1>
       <p className="mt-1 text-sm text-white/40">
-        {[pick.year, runtimeLabel(pick.runtime)].filter(Boolean).join(" · ")}
+        {[pick.year, runtimeLabel(pick.runtime, t.pick.runtime)]
+          .filter(Boolean)
+          .join(" · ")}
       </p>
 
       {tags.length > 0 && (
@@ -74,7 +77,7 @@ export default function PickScreen({
           rel="noreferrer"
           className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white"
         >
-          Детальніше
+          {t.pick.details}
         </a>
 
         <button
@@ -82,7 +85,7 @@ export default function PickScreen({
           onClick={onWatched}
           className="w-full rounded-2xl bg-white py-4 font-semibold text-black"
         >
-          Подивились
+          {t.pick.watched}
         </button>
 
         <div className="flex gap-2 pt-1">
@@ -92,7 +95,7 @@ export default function PickScreen({
             disabled={busy}
             className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
           >
-            вже бачили
+            {t.pick.alreadySeen}
           </button>
           <button
             type="button"
@@ -100,10 +103,11 @@ export default function PickScreen({
             disabled={busy}
             className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm text-white/60 disabled:opacity-40"
           >
-            {busy ? "хвилинку…" : "не сьогодні"}
+            {busy ? t.pick.busy : t.pick.notTonight}
           </button>
         </div>
       </div>
     </>
   );
 }
+

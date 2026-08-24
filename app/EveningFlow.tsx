@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import { historyFor, recordFeedback, subgroupSignals } from "@/lib/combinations";
+import {
+  clearEveningSession,
+  loadEveningSession,
+  saveEveningSession,
+} from "@/lib/eveningSession";
 import { activeLockFor, lockGroupFor24h } from "@/lib/locks";
 import { needsUkrainianAudio, unionSubscriptions } from "@/lib/people";
 import { errorMessage } from "@/lib/errorMessage";
@@ -37,7 +43,6 @@ export default function EveningFlow() {
   const [brain, setBrain] = useState<BrainLevel>("low");
   const [genreWish, setGenreWish] = useState<string | null>(null);
   const [era, setEra] = useState<Era>("any");
-  const [kidsInRoom, setKidsInRoom] = useState(false);
 
   const [pick, setPick] = useState<Pick | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,12 +53,65 @@ export default function EveningFlow() {
   const [refusedTitles, setRefusedTitles] = useState<string[]>([]);
   const [notTonightCount, setNotTonightCount] = useState(0);
 
+  const hydrated = useRef(false);
+  const { t } = useLang();
+
   useEffect(() => {
     loadProfiles()
       .then(setProfiles)
-      .catch((e) => setError(errorMessage(e, "Не вдалося завантажити профілі")))
+      .catch((e) => setError(errorMessage(e, t.errors.loadProfiles)))
       .finally(() => setProfilesLoading(false));
+  }, [t]);
+
+  // A refresh is not the evening ending — only closing the tab is. Restore
+  // from sessionStorage after mount (not during the initial render) so the
+  // server-rendered HTML and the client's first render still match.
+  useEffect(() => {
+    const saved = loadEveningSession();
+    if (saved) {
+      setStage(saved.stage);
+      setPersonIds(saved.personIds);
+      setTime(saved.time);
+      setBrain(saved.brain);
+      setGenreWish(saved.genreWish);
+      setEra(saved.era);
+      setPick(saved.pick);
+      setSeenIds(saved.seenIds);
+      setRefusedTitles(saved.refusedTitles);
+      setNotTonightCount(saved.notTonightCount);
+    }
+    hydrated.current = true;
   }, []);
+
+  // "profile" is skipped on purpose — editing a person isn't Evening data,
+  // and restoring that stage without editingId would silently turn an edit
+  // into a new-profile form.
+  useEffect(() => {
+    if (!hydrated.current || stage === "profile") return;
+    saveEveningSession({
+      stage,
+      personIds,
+      time,
+      brain,
+      genreWish,
+      era,
+      pick,
+      seenIds,
+      refusedTitles,
+      notTonightCount,
+    });
+  }, [
+    stage,
+    personIds,
+    time,
+    brain,
+    genreWish,
+    era,
+    pick,
+    seenIds,
+    refusedTitles,
+    notTonightCount,
+  ]);
 
   // Checked against whatever is currently selected — a different pairing
   // than the one that said "не сьогодні" is never blocked by that lock.
@@ -105,7 +163,6 @@ export default function EveningFlow() {
           brain,
           genreWish,
           era,
-          kidsInRoom,
           combination,
           excludeIds: excludeWithHistory,
           refusedTitles: refused,
@@ -116,7 +173,7 @@ export default function EveningFlow() {
       setPick(data as Pick);
       setStage("pick");
     } catch (e) {
-      setError(errorMessage(e, "Щось пішло не так"));
+      setError(errorMessage(e, t.errors.somethingWrong));
     } finally {
       setBusy(false);
     }
@@ -170,7 +227,7 @@ export default function EveningFlow() {
         const until = await lockGroupFor24h(personIds);
         setLockUntil(until);
       } catch (e) {
-        setError(errorMessage(e, "Не вдалося зберегти паузу"));
+        setError(errorMessage(e, t.errors.savePause));
       } finally {
         setBusy(false);
       }
@@ -221,10 +278,11 @@ export default function EveningFlow() {
             setPersonIds((prev) => prev.filter((p) => p !== id));
             deleteProfile(id)
               .then(() => setProfiles((prev) => prev.filter((p) => p.id !== id)))
-              .catch((e) => setError(errorMessage(e, "Не вдалося видалити")));
+              .catch((e) => setError(errorMessage(e, t.errors.delete)));
           }}
           onNext={() => setStage("dials")}
           onSignOut={() => {
+            clearEveningSession();
             void createClient()
               .auth.signOut()
               .then(() => window.location.reload());
@@ -247,7 +305,7 @@ export default function EveningFlow() {
                 setStage("who");
               })
               .catch((e) =>
-                setError(errorMessage(e, "Не вдалося зберегти профіль")),
+                setError(errorMessage(e, t.errors.saveProfile)),
               );
           }}
           onCancel={() => setStage("who")}
@@ -262,12 +320,10 @@ export default function EveningFlow() {
           brain={brain}
           genreWish={genreWish}
           era={era}
-          kidsInRoom={kidsInRoom}
           onTime={setTime}
           onBrain={setBrain}
           onGenreWish={setGenreWish}
           onEra={setEra}
-          onKidsInRoom={setKidsInRoom}
           onBack={() => setStage("who")}
           onPick={() => fetchPick(seenIds, refusedTitles)}
           busy={busy}
@@ -281,7 +337,7 @@ export default function EveningFlow() {
           onAlreadySeen={handleAlreadySeen}
           onWatched={() => setStage("feedback")}
           onNotTonight={handleNotTonight}
-          context={{ time, brain, era, genreWish, kidsInRoom }}
+          context={{ time, brain, era, genreWish }}
         />
       )}
 

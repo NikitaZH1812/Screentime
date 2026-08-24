@@ -72,8 +72,6 @@ type DiscoverParams = {
   wishGenre: number | null;
   runtimeCap: number | null;
   era: Era;
-  /** Hard, safety-critical — never omitted regardless of ladder step. */
-  kidsInRoom: boolean;
   page: number;
 };
 
@@ -94,14 +92,6 @@ async function discover(p: DiscoverParams): Promise<{ id: number }[]> {
   const window = eraWindow(p.era);
   if (window.gte) params["primary_release_date.gte"] = window.gte;
   if (window.lte) params["primary_release_date.lte"] = window.lte;
-
-  if (p.kidsInRoom) {
-    // TMDB certification data is US-only and incomplete for older/foreign
-    // titles — a soft best-effort, not a guarantee. Combined with the model
-    // being told the same constraint as a hard rule it can read the plot for.
-    params.certification_country = "US";
-    params["certification.lte"] = "PG-13";
-  }
 
   const json = await tmdb("/discover/movie", params);
   return json.results ?? [];
@@ -144,7 +134,6 @@ export async function retrieveCandidates(opts: {
   time: TimeBucket;
   genreWish: string | null;
   era: Era;
-  kidsInRoom: boolean;
   excludeIds: number[];
 }): Promise<RetrievalResult> {
   const excludeGenres = excludedGenreIds(opts.genreExclusions);
@@ -154,9 +143,7 @@ export async function retrieveCandidates(opts: {
 
   const startedAt = Date.now();
 
-  // kidsInRoom rides along on every rung below — it is a safety constraint,
-  // never a taste preference, so it is never the thing that gets relaxed.
-  const base = { excludeGenres, kidsInRoom: opts.kidsInRoom };
+  const base = { excludeGenres };
 
   const ladder: { params: Omit<DiscoverParams, "page">; relaxed: string[] }[] = [
     { params: { ...base, wishGenre: wish, runtimeCap: cap, era: opts.era }, relaxed: [] },
@@ -220,14 +207,12 @@ export async function retrieveCandidates(opts: {
   }
 
   // Nothing survived even the loosest query — return whatever popular films
-  // exist so the screen is never blank. kidsInRoom still applies: an empty
-  // screen is unacceptable, an inappropriate pick in front of a kid is worse.
+  // exist so the screen is never blank.
   const rows = await discover({
     excludeGenres: [],
     wishGenre: null,
     runtimeCap: null,
     era: "any",
-    kidsInRoom: opts.kidsInRoom,
     page: 1,
   });
   const ids = rows

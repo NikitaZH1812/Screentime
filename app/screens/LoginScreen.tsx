@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useLang } from "@/lib/LangContext";
 import { createClient } from "@/lib/supabase/client";
+import LangToggle from "../components/LangToggle";
 
 /**
  * Passwordless on purpose: one tap, nothing to remember. Google is the
@@ -10,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
  * anyone who'd rather not link a Google account.
  */
 export default function LoginScreen() {
+  const { t } = useLang();
   const [showEmail, setShowEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -48,9 +51,9 @@ export default function LoginScreen() {
   if (sent) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center px-5 text-center">
-        <p className="text-xl font-semibold">Перевір пошту</p>
+        <p className="text-xl font-semibold">{t.login.checkEmail}</p>
         <p className="mt-3 text-[15px] leading-relaxed text-white/50">
-          Надіслали посилання на {email}. Тапни його — і ти всередині.
+          {t.login.sentTo(email)}
         </p>
       </main>
     );
@@ -58,8 +61,13 @@ export default function LoginScreen() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center px-5">
-      <h1 className="mb-1 text-xl font-semibold">Screentime</h1>
-      <p className="mb-8 text-sm text-white/40">одне посилання, без паролів</p>
+      <div className="mb-1 flex w-full items-center justify-center gap-3">
+        <h1 className="text-xl font-semibold">Screentime</h1>
+      </div>
+      <div className="mb-8 flex items-center gap-3">
+        <p className="text-sm text-white/40">{t.login.tagline}</p>
+        <LangToggle />
+      </div>
 
       <button
         type="button"
@@ -85,7 +93,7 @@ export default function LoginScreen() {
             d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"
           />
         </svg>
-        {busy ? "Хвилинку…" : "Продовжити з Google"}
+        {busy ? t.login.continuingGoogle : t.login.continueWithGoogle}
       </button>
 
       {!showEmail ? (
@@ -94,7 +102,7 @@ export default function LoginScreen() {
           onClick={() => setShowEmail(true)}
           className="mt-4 text-sm text-white/30"
         >
-          або через email
+          {t.login.orEmail}
         </button>
       ) : (
         <form onSubmit={withEmail} className="mt-4 w-full">
@@ -103,7 +111,7 @@ export default function LoginScreen() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="твій email"
+            placeholder={t.login.emailPlaceholder}
             className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] placeholder:text-white/25 focus:border-white/30 focus:outline-none"
           />
           <button
@@ -111,7 +119,7 @@ export default function LoginScreen() {
             disabled={busy || !email.trim()}
             className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] py-4 font-semibold disabled:opacity-30"
           >
-            {busy ? "Надсилаю…" : "Надіслати посилання"}
+            {busy ? t.login.sending : t.login.sendLink}
           </button>
         </form>
       )}
