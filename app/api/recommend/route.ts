@@ -8,6 +8,9 @@ import type { BrainLevel, CombinationContext, Era, Person, TimeBucket } from "@/
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Supabase (auth.getUser()) is in eu-west-1 (Ireland) — dub1 is Vercel's
+// closest region, instead of the platform default (iad1, US East).
+export const preferredRegion = "dub1";
 
 type Body = {
   people: Person[];

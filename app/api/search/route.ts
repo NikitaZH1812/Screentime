@@ -5,6 +5,7 @@ import { searchFilms } from "@/lib/tmdb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = "dub1";
 
 export async function GET(req: Request) {
   if (missingSupabaseKeys().length) {

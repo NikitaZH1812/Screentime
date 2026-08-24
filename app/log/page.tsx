@@ -3,6 +3,7 @@ import { missingSupabaseKeys } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+export const preferredRegion = "dub1";
 
 export default async function LogPage() {
   // Home renders the "not configured" message; no need to duplicate it here.

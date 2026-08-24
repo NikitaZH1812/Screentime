@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import EveningFlow from "./EveningFlow";
 import LoginScreen from "./screens/LoginScreen";
 
+export const preferredRegion = "dub1";
+
 export default async function Home() {
   const missing = missingSupabaseKeys();
   if (missing.length > 0) {
