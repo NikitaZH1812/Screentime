@@ -18,7 +18,6 @@ type Body = {
   brain: BrainLevel;
   genreWish: string | null;
   era: Era;
-  kidsInRoom: boolean;
   combination: CombinationContext;
   excludeIds?: number[];
   refusedTitles?: string[];
@@ -64,7 +63,6 @@ export async function POST(req: Request) {
       time: body.time,
       genreWish: body.genreWish,
       era: body.era,
-      kidsInRoom: body.kidsInRoom,
       excludeIds: body.excludeIds ?? [],
     });
 
@@ -75,7 +73,6 @@ export async function POST(req: Request) {
       brain: body.brain,
       genreWish: body.genreWish,
       era: body.era,
-      kidsInRoom: body.kidsInRoom,
       combination: body.combination,
       relaxed,
       refusedTitles: body.refusedTitles ?? [],

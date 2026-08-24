@@ -55,10 +55,6 @@ export type Era = "old" | "any" | "new";
 /**
  * Level 2 of the data model: the evening. Soft, session-only.
  * NEVER written back to a Person.
- *
- * kidsInRoom is the one exception to "soft": once set it becomes a hard,
- * safety-critical constraint for this evening, never something to relax
- * away in search of a non-empty screen.
  */
 export type Evening = {
   personIds: string[];
@@ -67,7 +63,6 @@ export type Evening = {
   /** The evening wish. A bias, never an obligation. Dies with the session. */
   genreWish: string | null;
   era: Era;
-  kidsInRoom: boolean;
 };
 
 export type Candidate = {

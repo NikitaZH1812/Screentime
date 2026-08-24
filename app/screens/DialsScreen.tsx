@@ -71,12 +71,10 @@ export default function DialsScreen({
   brain,
   genreWish,
   era,
-  kidsInRoom,
   onTime,
   onBrain,
   onGenreWish,
   onEra,
-  onKidsInRoom,
   onBack,
   onPick,
   busy,
@@ -85,12 +83,10 @@ export default function DialsScreen({
   brain: BrainLevel;
   genreWish: string | null;
   era: Era;
-  kidsInRoom: boolean;
   onTime: (v: TimeBucket) => void;
   onBrain: (v: BrainLevel) => void;
   onGenreWish: (v: string | null) => void;
   onEra: (v: Era) => void;
-  onKidsInRoom: (v: boolean) => void;
   onBack: () => void;
   onPick: () => void;
   busy?: boolean;
@@ -128,15 +124,6 @@ export default function DialsScreen({
             {b.label}
           </Chip>
         ))}
-      </Row>
-
-      <Row label="Хто в кімнаті">
-        <Chip on={!kidsInRoom} onClick={() => onKidsInRoom(false)}>
-          тільки дорослі
-        </Chip>
-        <Chip on={kidsInRoom} onClick={() => onKidsInRoom(true)}>
-          є діти
-        </Chip>
       </Row>
 
       <Row label="Старе чи нове">

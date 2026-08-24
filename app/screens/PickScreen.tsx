@@ -33,7 +33,6 @@ export default function PickScreen({
     brain: BrainLevel;
     era: Era;
     genreWish: string | null;
-    kidsInRoom: boolean;
   };
 }) {
   const poster = posterUrl(pick.poster_path);
@@ -44,7 +43,6 @@ export default function PickScreen({
     brainChipLabel(context.brain),
     eraChipLabel(context.era),
     context.genreWish,
-    context.kidsInRoom ? "з дітьми" : null,
   ].filter((t): t is string => Boolean(t));
 
   return (
