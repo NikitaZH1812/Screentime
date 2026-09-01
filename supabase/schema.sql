@@ -39,6 +39,11 @@ create table if not exists combination_feedback (
   created_at timestamptz not null default now()
 );
 
+-- Added after the table already existed in production — denormalized here
+-- for the same reason title is: the history screen shouldn't have to hit
+-- TMDB again just to render a poster for something already watched.
+alter table combination_feedback add column if not exists poster_path text;
+
 alter table combination_feedback enable row level security;
 
 drop policy if exists "combination feedback is owner-scoped" on combination_feedback;

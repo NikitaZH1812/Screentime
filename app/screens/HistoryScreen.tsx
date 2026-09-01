@@ -1,6 +1,7 @@
 "use client";
 
 import { useLang } from "@/lib/LangContext";
+import { posterUrl } from "@/lib/tmdbUrls";
 import type { CombinationFeedback } from "@/lib/types";
 
 function formatDate(iso: string, lang: "en" | "uk") {
@@ -47,34 +48,49 @@ export default function HistoryScreen({
         <p className="text-[15px] leading-relaxed text-white/40">{t.history.empty}</p>
       ) : (
         <div className="space-y-2">
-          {sorted.map((e, i) => (
-            <div
-              key={`${e.tmdb_id}-${e.timestamp}-${i}`}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-[15px]">{e.title}</span>
-                <span className="shrink-0 text-xs text-white/25">
-                  {formatDate(e.timestamp, lang)}
-                </span>
-              </div>
-              <p
-                className={`mt-1 text-xs ${
-                  e.watched && e.liked
-                    ? "text-accent"
-                    : e.watched
-                      ? "text-white/40"
-                      : "text-white/25"
-                }`}
+          {sorted.map((e, i) => {
+            const thumb = posterUrl(e.poster_path, "w92");
+            return (
+              <div
+                key={`${e.tmdb_id}-${e.timestamp}-${i}`}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3"
               >
-                {!e.watched
-                  ? t.history.notWatched
-                  : e.liked
-                    ? t.history.liked
-                    : t.history.disliked}
-              </p>
-            </div>
-          ))}
+                {thumb ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={thumb}
+                    alt=""
+                    className="h-16 w-11 shrink-0 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-16 w-11 shrink-0 rounded-lg bg-white/10" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-[15px]">{e.title}</span>
+                    <span className="shrink-0 text-xs text-white/25">
+                      {formatDate(e.timestamp, lang)}
+                    </span>
+                  </div>
+                  <p
+                    className={`mt-1 text-xs ${
+                      e.watched && e.liked
+                        ? "text-accent"
+                        : e.watched
+                          ? "text-white/40"
+                          : "text-white/25"
+                    }`}
+                  >
+                    {!e.watched
+                      ? t.history.notWatched
+                      : e.liked
+                        ? t.history.liked
+                        : t.history.disliked}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </>

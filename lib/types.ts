@@ -99,6 +99,8 @@ export type CombinationFeedback = {
   timestamp: string;
   watched: boolean;
   liked: boolean | null;
+  /** Null for rows recorded before this column existed. */
+  poster_path: string | null;
 };
 
 /**

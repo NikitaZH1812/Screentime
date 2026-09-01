@@ -393,6 +393,7 @@ export default function EveningFlow() {
                 title: pick.title,
                 watched,
                 liked,
+                poster_path: pick.poster_path,
               });
               restart();
             }}

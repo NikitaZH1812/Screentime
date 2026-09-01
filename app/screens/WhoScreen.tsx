@@ -171,6 +171,16 @@ export default function WhoScreen({
               </div>
             );
           })}
+          {selected.length > 0 && (
+            <button
+              type="button"
+              onClick={onHistory}
+              className="flex w-full items-center justify-between rounded-2xl border border-accent/40 bg-accent/15 p-3 text-sm font-semibold text-accent transition hover:bg-accent/20 active:scale-[0.98]"
+            >
+              <span>{t.who.historyLink}</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -183,15 +193,6 @@ export default function WhoScreen({
       </button>
 
       <div className="mt-auto pt-10">
-        {selected.length > 0 && (
-          <button
-            type="button"
-            onClick={onHistory}
-            className="mb-3 block w-full text-center text-xs text-white/30 underline underline-offset-4 transition hover:text-accent"
-          >
-            {t.who.historyLink}
-          </button>
-        )}
         {locked && lockUntil && (
           <p className="mb-3 text-center text-sm text-white/40">
             {t.who.lockedUntil(countdown(lockUntil, now))}
