@@ -79,7 +79,7 @@ export default function PickScreen({
           href={watchUrl(pick.tmdb_id)}
           target="_blank"
           rel="noreferrer"
-          className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white transition hover:border-accent/50 active:scale-[0.98]"
+          className="block w-full rounded-2xl border border-white/15 py-4 text-center font-semibold text-white transition hover:border-accent-2/60 active:scale-[0.98]"
         >
           {t.pick.details}
         </a>

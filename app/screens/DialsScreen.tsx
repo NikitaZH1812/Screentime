@@ -41,7 +41,7 @@ function Chip({
       onClick={onClick}
       className={`rounded-full border px-4 py-2.5 text-sm transition active:scale-95 ${
         on
-          ? "border-accent bg-accent text-accent-fg"
+          ? "border-accent-2 bg-accent-2 text-accent-2-fg"
           : "border-white/10 bg-white/[0.03] text-white/80"
       }`}
     >
@@ -138,7 +138,7 @@ export default function DialsScreen({
           setWishOpen(next);
           if (!next) onGenreWish(null);
         }}
-        className="mb-4 self-start text-sm text-white/40 underline underline-offset-4 transition hover:text-accent"
+        className="mb-4 self-start text-sm text-white/40 underline underline-offset-4 transition hover:text-accent-2"
       >
         {wishOpen ? t.dials.wishClose : t.dials.wishOpen}
       </button>
