@@ -175,7 +175,7 @@ export default function WhoScreen({
             <button
               type="button"
               onClick={onHistory}
-              className="flex w-full items-center justify-between rounded-2xl border border-accent/40 bg-accent/15 p-3 text-sm font-semibold text-accent transition hover:bg-accent/20 active:scale-[0.98]"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
             >
               <span>{t.who.historyLink}</span>
               <span aria-hidden="true">→</span>
