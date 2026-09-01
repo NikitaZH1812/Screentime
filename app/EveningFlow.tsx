@@ -388,13 +388,13 @@ export default function EveningFlow() {
           <FeedbackScreen
             pick={pick}
             onAnswer={(watched, liked) => {
-              void recordFeedback(personIds, {
+              recordFeedback(personIds, {
                 tmdb_id: pick.tmdb_id,
                 title: pick.title,
                 watched,
                 liked,
                 poster_path: pick.poster_path,
-              });
+              }).catch((e) => setError(errorMessage(e, t.errors.saveFeedback)));
               restart();
             }}
             onDismiss={restart}

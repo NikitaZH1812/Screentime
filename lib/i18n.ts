@@ -108,6 +108,7 @@ type Dict = {
     delete: string;
     saveProfile: string;
     loadHistory: string;
+    saveFeedback: string;
   };
   config: (missing: string) => string;
 };
@@ -238,6 +239,7 @@ export const DICT: Record<Lang, Dict> = {
       delete: "Couldn't delete",
       saveProfile: "Couldn't save the profile",
       loadHistory: "Couldn't load watch history",
+      saveFeedback: "Couldn't save your feedback",
     },
     config: (missing) =>
       `Not configured: ${missing}. Locally — in .env.local, on Vercel — in Settings → Environment Variables, then redeploy.`,
@@ -367,6 +369,7 @@ export const DICT: Record<Lang, Dict> = {
       delete: "Не вдалося видалити",
       saveProfile: "Не вдалося зберегти профіль",
       loadHistory: "Не вдалося завантажити історію",
+      saveFeedback: "Не вдалося зберегти фідбек",
     },
     config: (missing) =>
       `Не налаштовано: ${missing}. Локально — у .env.local, на Vercel — у Settings → Environment Variables, і потім Redeploy.`,
