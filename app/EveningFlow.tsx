@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import type {
   BrainLevel,
   CombinationContext,
+  CombinationFeedback,
   Era,
   Person,
   Pick,
@@ -28,8 +29,9 @@ import DialsScreen from "./screens/DialsScreen";
 import LoadingScreen from "./screens/LoadingScreen";
 import PickScreen from "./screens/PickScreen";
 import FeedbackScreen from "./screens/FeedbackScreen";
+import HistoryScreen from "./screens/HistoryScreen";
 
-type Stage = "who" | "profile" | "dials" | "pick" | "feedback";
+type Stage = "who" | "profile" | "dials" | "pick" | "feedback" | "history";
 
 export default function EveningFlow() {
   const [stage, setStage] = useState<Stage>("who");
@@ -52,6 +54,10 @@ export default function EveningFlow() {
   const [seenIds, setSeenIds] = useState<number[]>([]);
   const [refusedTitles, setRefusedTitles] = useState<string[]>([]);
   const [notTonightCount, setNotTonightCount] = useState(0);
+
+  // The group's watch history — fetched on demand, not part of the evening.
+  const [historyEntries, setHistoryEntries] = useState<CombinationFeedback[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const hydrated = useRef(false);
   const { t } = useLang();
@@ -85,9 +91,10 @@ export default function EveningFlow() {
 
   // "profile" is skipped on purpose — editing a person isn't Evening data,
   // and restoring that stage without editingId would silently turn an edit
-  // into a new-profile form.
+  // into a new-profile form. "history" is skipped for the same reason: it's
+  // read-only derived data, not something the evening itself needs to resume.
   useEffect(() => {
-    if (!hydrated.current || stage === "profile") return;
+    if (!hydrated.current || stage === "profile" || stage === "history") return;
     saveEveningSession({
       stage,
       personIds,
@@ -243,6 +250,18 @@ export default function EveningFlow() {
     await fetchPick(nextSeen, nextRefused);
   }
 
+  async function openHistory() {
+    setStage("history");
+    setHistoryLoading(true);
+    try {
+      setHistoryEntries(await historyFor(personIds));
+    } catch (e) {
+      setError(errorMessage(e, t.errors.loadHistory));
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
+
   function restart() {
     setStage("who");
     setPersonIds([]);
@@ -288,6 +307,17 @@ export default function EveningFlow() {
                 .auth.signOut()
                 .then(() => window.location.reload());
             }}
+            onHistory={openHistory}
+          />
+        </div>
+      )}
+
+      {stage === "history" && (
+        <div key="history" className="screen-enter flex flex-1 flex-col">
+          <HistoryScreen
+            entries={historyEntries}
+            loading={historyLoading}
+            onBack={() => setStage("who")}
           />
         </div>
       )}

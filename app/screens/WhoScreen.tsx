@@ -44,6 +44,7 @@ export default function WhoScreen({
   onDelete,
   onNext,
   onSignOut,
+  onHistory,
 }: {
   profiles: Person[];
   loading: boolean;
@@ -56,6 +57,7 @@ export default function WhoScreen({
   onDelete: (id: string) => void;
   onNext: () => void;
   onSignOut: () => void;
+  onHistory: () => void;
 }) {
   const { t } = useLang();
   const [now, setNow] = useState(() => Date.now());
@@ -181,6 +183,15 @@ export default function WhoScreen({
       </button>
 
       <div className="mt-auto pt-10">
+        {selected.length > 0 && (
+          <button
+            type="button"
+            onClick={onHistory}
+            className="mb-3 block w-full text-center text-xs text-white/30 underline underline-offset-4 transition hover:text-accent"
+          >
+            {t.who.historyLink}
+          </button>
+        )}
         {locked && lockUntil && (
           <p className="mb-3 text-center text-sm text-white/40">
             {t.who.lockedUntil(countdown(lockUntil, now))}
