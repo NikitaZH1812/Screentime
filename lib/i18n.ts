@@ -13,12 +13,23 @@ type Dict = {
     cancel: string;
     newProfile: string;
     next: string;
+    historyLink: string;
     banned: (n: number) => string;
     lockedUntil: (countdown: string) => string;
   };
   login: {
     continueWithGoogle: string;
     continuingGoogle: string;
+  };
+  history: {
+    title: string;
+    back: string;
+    loading: string;
+    empty: string;
+    watched: string;
+    notWatched: string;
+    liked: string;
+    disliked: string;
   };
   onboarding: {
     skip: string;
@@ -96,6 +107,7 @@ type Dict = {
     savePause: string;
     delete: string;
     saveProfile: string;
+    loadHistory: string;
   };
   config: (missing: string) => string;
 };
@@ -113,6 +125,7 @@ export const DICT: Record<Lang, Dict> = {
       cancel: "cancel",
       newProfile: "+ new profile",
       next: "Next",
+      historyLink: "watch history",
       banned: (n) => `${n} restriction${n === 1 ? "" : "s"}`,
       lockedUntil: (countdown) =>
         `this group already said "not tonight" — try again in ${countdown}`,
@@ -120,6 +133,16 @@ export const DICT: Record<Lang, Dict> = {
     login: {
       continueWithGoogle: "Continue with Google",
       continuingGoogle: "One moment…",
+    },
+    history: {
+      title: "What you've watched",
+      back: "← back",
+      loading: "Loading…",
+      empty: "Nothing watched together yet — it'll show up here the day after.",
+      watched: "watched",
+      notWatched: "suggested, not watched",
+      liked: "liked it",
+      disliked: "didn't land",
     },
     onboarding: {
       skip: "skip",
@@ -214,6 +237,7 @@ export const DICT: Record<Lang, Dict> = {
       savePause: "Couldn't save the pause",
       delete: "Couldn't delete",
       saveProfile: "Couldn't save the profile",
+      loadHistory: "Couldn't load watch history",
     },
     config: (missing) =>
       `Not configured: ${missing}. Locally — in .env.local, on Vercel — in Settings → Environment Variables, then redeploy.`,
@@ -230,6 +254,7 @@ export const DICT: Record<Lang, Dict> = {
       cancel: "скасувати",
       newProfile: "+ новий профіль",
       next: "Далі",
+      historyLink: "історія перегляду",
       banned: (n) => `${n} заборон`,
       lockedUntil: (countdown) =>
         `ця компанія вже сказала «не сьогодні» — знову можна через ${countdown}`,
@@ -237,6 +262,16 @@ export const DICT: Record<Lang, Dict> = {
     login: {
       continueWithGoogle: "Продовжити з Google",
       continuingGoogle: "Хвилинку…",
+    },
+    history: {
+      title: "Що вже дивились",
+      back: "← назад",
+      loading: "Завантажую…",
+      empty: "Разом ще нічого не дивились — з'явиться тут наступного дня.",
+      watched: "подивились",
+      notWatched: "запропонували, не подивились",
+      liked: "сподобалось",
+      disliked: "не сподобалось",
     },
     onboarding: {
       skip: "пропустити",
@@ -331,6 +366,7 @@ export const DICT: Record<Lang, Dict> = {
       savePause: "Не вдалося зберегти паузу",
       delete: "Не вдалося видалити",
       saveProfile: "Не вдалося зберегти профіль",
+      loadHistory: "Не вдалося завантажити історію",
     },
     config: (missing) =>
       `Не налаштовано: ${missing}. Локально — у .env.local, на Vercel — у Settings → Environment Variables, і потім Redeploy.`,

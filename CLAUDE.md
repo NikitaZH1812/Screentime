@@ -143,7 +143,14 @@ worse version of a chatbot with extra UI.
 
 ---
 
-## V1 scope
+## Scope
+
+V1 shipped. Scope now evolves feature-by-feature rather than being fixed up
+front — but the process stays the same: something on the **Out** list is a
+deliberate exclusion, not a permanent ban. Building it requires an explicit
+ask, not a silent "while I'm in there." When that ask happens, move the item
+from Out to In in this file as part of the same change, so the doc keeps
+matching what actually shipped instead of arguing with it.
 
 ### In
 - Multiple people/profiles, each with their own permanent exclusions + references
@@ -153,9 +160,11 @@ worse version of a chatbot with extra UI.
 - Refusal with reason (3 reasons above)
 - Next-day feedback prompt (separate, non-blocking)
 - **Refusal reason log** — see below
+- Group watch history: past picks for a combination, with the binary
+  watched/liked feedback already collected — not a numeric rating
 
 ### Out
-Voice, TV apps, social features, watchlists, numeric ratings, series,
+Voice, TV apps, social features, numeric ratings, series,
 multi-day planning, streaming availability API, native mobile app.
 
 ### Availability in V1 — deliberately user-declared
