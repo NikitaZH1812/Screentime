@@ -20,6 +20,7 @@ type Row = {
   title: string;
   watched: boolean;
   liked: boolean | null;
+  poster_path: string | null;
   created_at: string;
 };
 
@@ -29,6 +30,7 @@ function fromRow(r: Row): CombinationFeedback {
     title: r.title,
     watched: r.watched,
     liked: r.liked,
+    poster_path: r.poster_path,
     timestamp: r.created_at,
   };
 }
@@ -44,6 +46,7 @@ export async function recordFeedback(
     title: entry.title,
     watched: entry.watched,
     liked: entry.liked,
+    poster_path: entry.poster_path,
   });
   if (error) throw error;
 }
@@ -57,7 +60,7 @@ export async function historyFor(personIds: string[]): Promise<CombinationFeedba
   // the Postgres array literal PostgREST needs ("{a,b}") — build it by hand.
   const { data, error } = await supabase
     .from("combination_feedback")
-    .select("tmdb_id, title, watched, liked, created_at")
+    .select("tmdb_id, title, watched, liked, poster_path, created_at")
     .filter("person_ids", "eq", `{${target.join(",")}}`);
 
   if (error) throw error;
@@ -77,7 +80,7 @@ export async function subgroupSignals(
 
   const { data, error } = await supabase
     .from("combination_feedback")
-    .select("person_ids, tmdb_id, title, watched, liked, created_at")
+    .select("person_ids, tmdb_id, title, watched, liked, poster_path, created_at")
     .filter("person_ids", "cd", `{${target.join(",")}}`);
 
   if (error) throw error;
