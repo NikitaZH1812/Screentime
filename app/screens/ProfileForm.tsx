@@ -41,7 +41,7 @@ function Chip({
       onClick={onClick}
       className={`rounded-full border px-3.5 py-2 text-sm transition active:scale-95 ${
         on
-          ? "border-accent bg-accent text-accent-fg"
+          ? "border-accent-2 bg-accent-2 text-accent-2-fg"
           : "border-white/10 bg-white/[0.03] text-white/70"
       }`}
     >

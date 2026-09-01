@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
 @theme {
+  /* Gold — the one primary action per screen: Next, Find it, Watched it, Save. */
   --color-accent: #e3a458;
   --color-accent-strong: #f2b972;
   --color-accent-fg: #1c1208;
+  /* Terracotta — selection/toggle states and secondary actions, so they read
+     as a different tier from the single gold "press this to continue" button
+     instead of everything being the same solid fill. */
+  --color-accent-2: #c8703f;
+  --color-accent-2-strong: #d9834f;
+  --color-accent-2-fg: #1c1208;
+  /* Warm rust — "didn't land" / destructive, in the same family as the rest
+     of the palette instead of a jarring cool red. */
+  --color-negative: #c1503f;
   --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
 }
 

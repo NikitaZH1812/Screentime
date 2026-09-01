@@ -13,7 +13,7 @@ export default function LangToggle() {
           type="button"
           onClick={() => setLang(l)}
           className={`rounded-full px-2.5 py-1 transition active:scale-95 ${
-            lang === l ? "bg-accent text-accent-fg" : "text-white/35"
+            lang === l ? "bg-accent-2 text-accent-2-fg" : "text-white/35"
           }`}
         >
           {l === "en" ? "EN" : "UA"}

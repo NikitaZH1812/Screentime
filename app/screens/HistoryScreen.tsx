@@ -77,7 +77,7 @@ export default function HistoryScreen({
                       e.watched && e.liked
                         ? "text-accent"
                         : e.watched
-                          ? "text-white/40"
+                          ? "text-negative"
                           : "text-white/25"
                     }`}
                   >

@@ -102,7 +102,7 @@ export default function WhoScreen({
                 key={p.id}
                 className={`flex items-start gap-2 rounded-2xl border p-3 transition ${
                   on
-                    ? "border-accent bg-accent/10"
+                    ? "border-accent-2 bg-accent-2/10"
                     : "border-white/10 bg-white/[0.03]"
                 }`}
               >
@@ -113,7 +113,7 @@ export default function WhoScreen({
                 >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold transition ${
-                      on ? "bg-accent text-accent-fg" : "bg-white/10 text-white/60"
+                      on ? "bg-accent-2 text-accent-2-fg" : "bg-white/10 text-white/60"
                     }`}
                   >
                     {initials(p.name)}
@@ -137,7 +137,7 @@ export default function WhoScreen({
                           setConfirmingId(null);
                           onDelete(p.id);
                         }}
-                        className="whitespace-nowrap px-2 py-1 text-xs text-red-400"
+                        className="whitespace-nowrap px-2 py-1 text-xs text-negative"
                       >
                         {t.who.deleteConfirm}
                       </button>
@@ -175,7 +175,7 @@ export default function WhoScreen({
             <button
               type="button"
               onClick={onHistory}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-fg transition hover:bg-accent-strong active:scale-[0.97]"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-accent-2 px-4 py-2.5 text-sm font-semibold text-accent-2-fg transition hover:bg-accent-2-strong active:scale-[0.97]"
             >
               <span>{t.who.historyLink}</span>
               <span aria-hidden="true">→</span>
@@ -187,7 +187,7 @@ export default function WhoScreen({
       <button
         type="button"
         onClick={onCreate}
-        className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-3.5 text-sm text-white/50 transition hover:border-accent/40 hover:text-accent active:scale-[0.98]"
+        className="mt-4 w-full rounded-2xl border border-dashed border-white/15 py-3.5 text-sm text-white/50 transition hover:border-accent-2/50 hover:text-accent-2 active:scale-[0.98]"
       >
         {t.who.newProfile}
       </button>
